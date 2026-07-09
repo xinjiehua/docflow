@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import { useUserStore } from '@/stores/user'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import Home from '@/pages/Home'
@@ -26,6 +27,26 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  const initialize = useUserStore((s) => s.initialize)
+  const loading = useUserStore((s) => s.loading)
+
+  useEffect(() => {
+    initialize()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-navy-50">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-navy-700 to-brand-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-white font-bold text-lg">D</span>
+          </div>
+          <p className="text-navy-400 text-sm">加载中...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <BrowserRouter>
       <ScrollToTop />

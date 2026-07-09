@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Check, X, Zap, Crown, QrCode, MessageCircle, Copy, ClipboardCheck, LogIn, Key, Clock } from 'lucide-react'
-import { useUserStore } from '@/stores/user'
+import { Check, X, Zap, Crown, QrCode, MessageCircle, Copy, ClipboardCheck, LogIn, Key, Clock, Loader2 } from 'lucide-react'
+import { useUserStore, PaymentRecord } from '@/stores/user'
 
 const plans = [
   {
@@ -55,9 +55,11 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
   const [activationCode, setActivationCode] = useState('')
   const [activateStatus, setActivateStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [activating, setActivating] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
 
-  const { isLoggedIn, currentUser, submitPayment, isPro, payments } = useUserStore()
+  const { isLoggedIn, currentUser, submitPayment, isPro, activateWithCode } = useUserStore()
   const wechatId = 'X617574493'
 
   const handleCopy = () => {
@@ -66,31 +68,40 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleSubmitTransaction = () => {
+  const handleSubmitTransaction = async () => {
     if (!transactionId.trim()) return
+    setSubmitting(true)
     try {
-      submitPayment(transactionId.trim())
-      setSubmitStatus('success')
-      setStep(2)
+      const result = await submitPayment(transactionId.trim())
+      if (result) {
+        setSubmitStatus('success')
+        setStep(2)
+      } else {
+        setSubmitStatus('error')
+      }
     } catch {
       setSubmitStatus('error')
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  const handleActivate = () => {
+  const handleActivate = async () => {
     if (!activationCode.trim()) return
-
-    // Check if the code matches any verified payment
-    const userPayments = payments.filter(
-      (p) => p.userId === currentUser?.id && p.status === 'verified' && p.activationCode === activationCode.trim().toUpperCase()
-    )
-
-    if (userPayments.length > 0) {
-      const store = useUserStore.getState()
-      store.upgradeUser(currentUser!.id, 30)
-      setActivateStatus('success')
-    } else {
+    setActivating(true)
+    setActivateStatus('idle')
+    try {
+      const success = await activateWithCode(activationCode.trim())
+      if (success) {
+        setActivateStatus('success')
+        setStep(3)
+      } else {
+        setActivateStatus('error')
+      }
+    } catch {
       setActivateStatus('error')
+    } finally {
+      setActivating(false)
     }
   }
 
@@ -125,7 +136,7 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
             专业版剩余 <span className="font-bold text-brand-600">{days}</span> 天
           </p>
           <p className="text-xs text-navy-400 mt-1">
-            到期时间: {currentUser?.expiryDate ? new Date(currentUser.expiryDate).toLocaleDateString('zh-CN') : '-'}
+            到期时间: {currentUser?.expiry_date ? new Date(currentUser.expiry_date).toLocaleDateString('zh-CN') : '-'}
           </p>
           <button onClick={onClose} className="btn-primary mt-6">好的</button>
         </div>
@@ -207,6 +218,12 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
                 </div>
               )}
 
+              {submitStatus === 'error' && (
+                <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200">
+                  <p className="text-sm text-red-600">提交失败，请重试</p>
+                </div>
+              )}
+
               <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
                 <p className="text-xs text-amber-600">
                   <strong>提示：</strong>支付完成后，请将交易号记录好。添加客服微信 X617574493 发送交易号，客服审核后会自动生成激活码。
@@ -215,10 +232,14 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
 
               <button
                 onClick={handleSubmitTransaction}
-                disabled={!transactionId.trim()}
+                disabled={!transactionId.trim() || submitting}
                 className="btn-primary mt-4 !px-8 disabled:opacity-50"
               >
-                提交付款凭证
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />提交中...</>
+                ) : (
+                  '提交付款凭证'
+                )}
               </button>
 
               {submitStatus === 'success' && (
@@ -287,18 +308,21 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
 
               {activateStatus === 'error' && (
                 <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200">
-                  <p className="text-sm text-red-600">激活码无效，请检查后重试</p>
+                  <p className="text-sm text-red-600">激活码无效或已被使用，请检查后重试</p>
                 </div>
               )}
 
               {activateStatus === 'idle' && (
                 <button
                   onClick={handleActivate}
-                  disabled={!activationCode.trim()}
+                  disabled={!activationCode.trim() || activating}
                   className="btn-primary w-full mt-4 !py-3 text-base disabled:opacity-50"
                 >
-                  <Key className="w-4 h-4 mr-2" />
-                  激活专业版
+                  {activating ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />激活中...</>
+                  ) : (
+                    <><Key className="w-4 h-4 mr-2" />激活专业版</>
+                  )}
                 </button>
               )}
 
@@ -383,7 +407,7 @@ export default function Pricing() {
                 </p>
                 {isPro() ? (
                   <p className="text-xs text-brand-600">
-                    到期时间: {new Date(currentUser.expiryDate!).toLocaleDateString('zh-CN')} · 剩余 {daysRemaining()} 天
+                    到期时间: {currentUser.expiry_date ? new Date(currentUser.expiry_date).toLocaleDateString('zh-CN') : '-'} · 剩余 {daysRemaining()} 天
                   </p>
                 ) : (
                   <p className="text-xs text-navy-400">升级专业版享受无限次处理</p>

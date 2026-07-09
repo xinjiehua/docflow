@@ -91,7 +91,7 @@ export default function Header() {
                       <p className="text-xs text-navy-400 mt-0.5">
                         {isPro() ? (
                           <span className="text-brand-600">
-                            专业版 · 到期 {new Date(currentUser.expiryDate!).toLocaleDateString('zh-CN')}
+                            专业版 · 到期 {new Date(currentUser.expiry_date!).toLocaleDateString('zh-CN')}
                           </span>
                         ) : (
                           '免费版用户'

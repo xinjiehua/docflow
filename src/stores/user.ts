@@ -1,192 +1,406 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { supabase } from '@/lib/supabase'
+import type { User as SupabaseUser, Session } from '@supabase/supabase-js'
 
-export interface User {
-  id: string
-  phone: string
+export interface UserProfile {
+  id: string          // same as auth user id
+  phone: string       // stored in user_metadata
   plan: 'free' | 'pro'
-  expiryDate: string | null
-  createdAt: string
+  expiry_date: string | null
+  created_at: string
 }
 
 export interface PaymentRecord {
   id: string
-  userId: string
+  user_id: string
   phone: string
   amount: number
-  transactionId: string
+  transaction_id: string
   status: 'pending' | 'verified' | 'rejected'
-  createdAt: string
-  verifiedAt: string | null
-  activationCode: string | null
+  created_at: string
+  verified_at: string | null
+  activation_code: string | null
 }
 
 interface UserState {
-  currentUser: User | null
+  currentUser: UserProfile | null
+  supabaseUser: SupabaseUser | null
+  session: Session | null
   isLoggedIn: boolean
-  users: Record<string, User>
-  payments: PaymentRecord[]
-  login: (phone: string) => User
-  register: (phone: string) => User
-  logout: () => void
+  loading: boolean
+
+  // Auth actions
+  initialize: () => Promise<void>
+  signUp: (phone: string, password: string) => Promise<{ error: string | null }>
+  signIn: (phone: string, password: string) => Promise<{ error: string | null }>
+  signOut: () => Promise<void>
+
+  // Profile actions
+  fetchProfile: (userId: string) => Promise<UserProfile | null>
+
+  // Payment actions
+  submitPayment: (transactionId: string) => Promise<PaymentRecord | null>
+  getPayments: () => Promise<PaymentRecord[]>
+  verifyPayment: (paymentId: string) => Promise<PaymentRecord | null>
+  rejectPayment: (paymentId: string) => Promise<boolean>
+
+  // User management
+  getAllUsers: () => Promise<UserProfile[]>
+  upgradeUser: (userId: string, days: number) => Promise<boolean>
+
+  // Helpers
   isPro: () => boolean
   daysRemaining: () => number
-  submitPayment: (transactionId: string) => PaymentRecord
-  addPayment: (payment: PaymentRecord) => void
-  verifyPayment: (paymentId: string) => PaymentRecord | null
-  getAllPayments: () => PaymentRecord[]
-  getAllUsers: () => User[]
-  upgradeUser: (userId: string, days: number) => void
+  activateWithCode: (code: string) => Promise<boolean>
 }
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2, 8)
-}
-
-function generateActivationCode() {
+function generateActivationCode(): string {
   return 'DF-' + Math.random().toString(36).substring(2, 8).toUpperCase()
 }
 
-export const useUserStore = create<UserState>()(
-  persist(
-    (set, get) => ({
-      currentUser: null,
-      isLoggedIn: false,
-      users: {},
-      payments: [],
+function mapProfile(row: Record<string, unknown>): UserProfile {
+  return {
+    id: row.id as string,
+    phone: (row.phone as string) || '',
+    plan: (row.plan as 'free' | 'pro') || 'free',
+    expiry_date: row.expiry_date as string | null,
+    created_at: row.created_at as string,
+  }
+}
 
-      register: (phone: string) => {
-        const id = generateId()
-        const user: User = {
-          id,
+function mapPayment(row: Record<string, unknown>): PaymentRecord {
+  return {
+    id: row.id as string,
+    user_id: row.user_id as string,
+    phone: row.phone as string,
+    amount: row.amount as number,
+    transaction_id: row.transaction_id as string,
+    status: row.status as 'pending' | 'verified' | 'rejected',
+    created_at: row.created_at as string,
+    verified_at: row.verified_at as string | null,
+    activation_code: row.activation_code as string | null,
+  }
+}
+
+export const useUserStore = create<UserState>()((set, get) => ({
+  currentUser: null,
+  supabaseUser: null,
+  session: null,
+  isLoggedIn: false,
+  loading: true,
+
+  initialize: async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user) {
+      const profile = await get().fetchProfile(session.user.id)
+      set({
+        session,
+        supabaseUser: session.user,
+        currentUser: profile,
+        isLoggedIn: !!profile,
+        loading: false,
+      })
+    } else {
+      set({ loading: false })
+    }
+
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        const profile = await get().fetchProfile(session.user.id)
+        set({
+          session,
+          supabaseUser: session.user,
+          currentUser: profile,
+          isLoggedIn: !!profile,
+        })
+      } else {
+        set({
+          session: null,
+          supabaseUser: null,
+          currentUser: null,
+          isLoggedIn: false,
+        })
+      }
+    })
+  },
+
+  signUp: async (phone: string, password: string) => {
+    // Supabase Auth uses email field, we store phone in user_metadata
+    const email = phone + '@docflow.local'
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { phone },
+      },
+    })
+
+    if (error) {
+      if (error.message.includes('already registered') || error.message.includes('already exists')) {
+        // User exists, try sign in instead
+        return get().signIn(phone, password)
+      }
+      return { error: error.message }
+    }
+
+    if (data.user) {
+      // Create profile via trigger or manually
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: data.user.id,
+        phone,
+        plan: 'free',
+        expiry_date: null,
+      })
+      if (profileError) {
+        console.error('Profile creation error:', profileError)
+      }
+
+      set({
+        supabaseUser: data.user,
+        session: data.session,
+        isLoggedIn: true,
+        currentUser: {
+          id: data.user.id,
           phone,
           plan: 'free',
-          expiryDate: null,
-          createdAt: new Date().toISOString(),
-        }
-        set((state) => ({
-          users: { ...state.users, [id]: user },
-          currentUser: user,
-          isLoggedIn: true,
-        }))
-        return user
-      },
-
-      login: (phone: string) => {
-        const state = get()
-        const existing = Object.values(state.users).find((u) => u.phone === phone)
-        if (existing) {
-          // Check if expired
-          if (existing.plan === 'pro' && existing.expiryDate) {
-            const expired = new Date(existing.expiryDate) < new Date()
-            if (expired) {
-              const updated = { ...existing, plan: 'free' as const, expiryDate: null }
-              set((s) => ({
-                users: { ...s.users, [existing.id]: updated },
-                currentUser: updated,
-                isLoggedIn: true,
-              }))
-              return updated
-            }
-          }
-          set({ currentUser: existing, isLoggedIn: true })
-          return existing
-        }
-        return get().register(phone)
-      },
-
-      logout: () => {
-        set({ currentUser: null, isLoggedIn: false })
-      },
-
-      isPro: () => {
-        const { currentUser } = get()
-        if (!currentUser || currentUser.plan !== 'pro' || !currentUser.expiryDate) return false
-        return new Date(currentUser.expiryDate) > new Date()
-      },
-
-      daysRemaining: () => {
-        const { currentUser } = get()
-        if (!currentUser || !currentUser.expiryDate) return 0
-        const diff = new Date(currentUser.expiryDate).getTime() - new Date().getTime()
-        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
-      },
-
-      submitPayment: (transactionId: string) => {
-        const { currentUser } = get()
-        if (!currentUser) throw new Error('Not logged in')
-        const payment: PaymentRecord = {
-          id: generateId(),
-          userId: currentUser.id,
-          phone: currentUser.phone,
-          amount: 29,
-          transactionId,
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-          verifiedAt: null,
-          activationCode: null,
-        }
-        set((state) => ({
-          payments: [...state.payments, payment],
-        }))
-        return payment
-      },
-
-      addPayment: (payment: PaymentRecord) => {
-        set((state) => ({
-          payments: [...state.payments, payment],
-        }))
-      },
-
-      verifyPayment: (paymentId: string) => {
-        const code = generateActivationCode()
-        let updated: PaymentRecord | null = null
-        set((state) => {
-          const newPayments = state.payments.map((p) => {
-            if (p.id === paymentId) {
-              updated = {
-                ...p,
-                status: 'verified',
-                verifiedAt: new Date().toISOString(),
-                activationCode: code,
-              }
-              return updated
-            }
-            return p
-          })
-          return { payments: newPayments }
-        })
-        return updated
-      },
-
-      getAllPayments: () => get().payments,
-
-      getAllUsers: () => Object.values(get().users),
-
-      upgradeUser: (userId: string, days: number) => {
-        set((state) => {
-          const user = state.users[userId]
-          if (!user) return state
-
-          const baseDate = user.expiryDate && new Date(user.expiryDate) > new Date()
-            ? new Date(user.expiryDate)
-            : new Date()
-          const newExpiry = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000).toISOString()
-
-          const updated = { ...user, plan: 'pro' as const, expiryDate: newExpiry }
-
-          // Also update currentUser if it's the same user
-          const isCurrentUser = state.currentUser?.id === userId
-
-          return {
-            users: { ...state.users, [userId]: updated },
-            ...(isCurrentUser ? { currentUser: updated } : {}),
-          }
-        })
-      },
-    }),
-    {
-      name: 'docflow-user-data',
+          expiry_date: null,
+          created_at: new Date().toISOString(),
+        },
+      })
     }
-  )
-)
+
+    return { error: null }
+  },
+
+  signIn: async (phone: string, password: string) => {
+    const email = phone + '@docflow.local'
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      return { error: '手机号或密码错误' }
+    }
+
+    if (data.user) {
+      const profile = await get().fetchProfile(data.user.id)
+      set({
+        supabaseUser: data.user,
+        session: data.session,
+        isLoggedIn: true,
+        currentUser: profile || {
+          id: data.user.id,
+          phone,
+          plan: 'free',
+          expiry_date: null,
+          created_at: new Date().toISOString(),
+        },
+      })
+    }
+
+    return { error: null }
+  },
+
+  signOut: async () => {
+    await supabase.auth.signOut()
+    set({
+      currentUser: null,
+      supabaseUser: null,
+      session: null,
+      isLoggedIn: false,
+    })
+  },
+
+  fetchProfile: async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (error || !data) {
+      console.error('Fetch profile error:', error)
+      return null
+    }
+
+    const profile = mapProfile(data)
+
+    // Check if pro plan is expired
+    if (profile.plan === 'pro' && profile.expiry_date) {
+      if (new Date(profile.expiry_date) < new Date()) {
+        // Auto-downgrade expired pro users
+        await supabase
+          .from('profiles')
+          .update({ plan: 'free', expiry_date: null })
+          .eq('id', userId)
+        profile.plan = 'free'
+        profile.expiry_date = null
+      }
+    }
+
+    return profile
+  },
+
+  submitPayment: async (transactionId: string) => {
+    const { currentUser } = get()
+    if (!currentUser) return null
+
+    const { data, error } = await supabase
+      .from('payments')
+      .insert({
+        user_id: currentUser.id,
+        phone: currentUser.phone,
+        amount: 29,
+        transaction_id: transactionId,
+        status: 'pending',
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Submit payment error:', error)
+      return null
+    }
+
+    return mapPayment(data)
+  },
+
+  getPayments: async () => {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Get payments error:', error)
+      return []
+    }
+
+    return (data || []).map(mapPayment)
+  },
+
+  verifyPayment: async (paymentId: string) => {
+    const code = generateActivationCode()
+
+    const { data, error } = await supabase
+      .from('payments')
+      .update({
+        status: 'verified',
+        verified_at: new Date().toISOString(),
+        activation_code: code,
+      })
+      .eq('id', paymentId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Verify payment error:', error)
+      return null
+    }
+
+    return mapPayment(data)
+  },
+
+  rejectPayment: async (paymentId: string) => {
+    const { error } = await supabase
+      .from('payments')
+      .update({ status: 'rejected' })
+      .eq('id', paymentId)
+
+    if (error) {
+      console.error('Reject payment error:', error)
+      return false
+    }
+    return true
+  },
+
+  getAllUsers: async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Get all users error:', error)
+      return []
+    }
+
+    return (data || []).map(mapProfile)
+  },
+
+  upgradeUser: async (userId: string, days: number) => {
+    // First get current profile
+    const { data: profile, error: fetchError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (fetchError || !profile) return false
+
+    const baseDate = profile.expiry_date && new Date(profile.expiry_date) > new Date()
+      ? new Date(profile.expiry_date)
+      : new Date()
+    const newExpiry = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000).toISOString()
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ plan: 'pro', expiry_date: newExpiry })
+      .eq('id', userId)
+
+    if (error) {
+      console.error('Upgrade user error:', error)
+      return false
+    }
+
+    // Update current user in state if it's the same user
+    const { currentUser } = get()
+    if (currentUser && currentUser.id === userId) {
+      set({
+        currentUser: {
+          ...currentUser,
+          plan: 'pro',
+          expiry_date: newExpiry,
+        },
+      })
+    }
+
+    return true
+  },
+
+  activateWithCode: async (code: string) => {
+    const { currentUser } = get()
+    if (!currentUser) return false
+
+    // Find a verified payment with this activation code for this user
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('activation_code', code.trim().toUpperCase())
+      .eq('user_id', currentUser.id)
+      .eq('status', 'verified')
+      .single()
+
+    if (error || !data) return false
+
+    // Activate: upgrade user 30 days
+    return get().upgradeUser(currentUser.id, 30)
+  },
+
+  isPro: () => {
+    const { currentUser } = get()
+    if (!currentUser || currentUser.plan !== 'pro' || !currentUser.expiry_date) return false
+    return new Date(currentUser.expiry_date) > new Date()
+  },
+
+  daysRemaining: () => {
+    const { currentUser } = get()
+    if (!currentUser || !currentUser.expiry_date) return 0
+    const diff = new Date(currentUser.expiry_date).getTime() - new Date().getTime()
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+  },
+}))

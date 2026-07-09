@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogIn, UserPlus, Shield, Eye, EyeOff } from 'lucide-react'
+import { LogIn, UserPlus, Shield, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { useUserStore } from '@/stores/user'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { login, isLoggedIn, currentUser } = useUserStore()
+  const { currentUser, isLoggedIn, signUp, signIn, signOut } = useUserStore()
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -15,7 +15,6 @@ export default function Login() {
   const [adminMode, setAdminMode] = useState(false)
   const [adminPassword, setAdminPassword] = useState('')
 
-  // Admin password - user can change this
   const ADMIN_PASSWORD = 'docflow2024'
 
   // If already logged in, redirect
@@ -36,9 +35,9 @@ export default function Login() {
               {currentUser.plan === 'pro' ? '专业版' : '免费版'}
             </span>
           </p>
-          {currentUser.expiryDate && (
+          {currentUser.expiry_date && (
             <p className="text-navy-500 mt-1">
-              到期时间：<span className="font-medium">{new Date(currentUser.expiryDate).toLocaleDateString('zh-CN')}</span>
+              到期时间：<span className="font-medium">{new Date(currentUser.expiry_date).toLocaleDateString('zh-CN')}</span>
             </p>
           )}
           <div className="flex gap-3 mt-6">
@@ -46,7 +45,7 @@ export default function Login() {
               前往定价页
             </button>
             <button
-              onClick={() => useUserStore.getState().logout()}
+              onClick={() => signOut()}
               className="btn-secondary flex-1"
             >
               退出登录
@@ -57,13 +56,15 @@ export default function Login() {
     )
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
     if (adminMode) {
-      // Admin login
       if (adminPassword === ADMIN_PASSWORD) {
+        // Admin password check passes, navigate to admin page
+        // Admin page will handle its own Supabase Auth login
+        sessionStorage.setItem('docflow-admin-pwd', 'true')
         navigate('/admin')
         return
       }
@@ -71,34 +72,40 @@ export default function Login() {
       return
     }
 
-    // Validate phone
     const phoneRegex = /^1[3-9]\d{9}$/
     if (!phoneRegex.test(phone)) {
       setError('请输入正确的11位手机号')
       return
     }
 
-    if (!password || password.length < 4) {
-      setError('请输入至少4位密码')
+    if (!password || password.length < 6) {
+      setError('请输入至少6位密码')
       return
     }
 
     setLoading(true)
 
-    // Simulate network delay
-    setTimeout(() => {
-      try {
-        const user = login(phone)
-        // In a real app, we'd verify the password hash
-        // For now, just store it
-        localStorage.setItem(`docflow-pwd-${phone}`, password)
-        setLoading(false)
-        navigate('/pricing')
-      } catch {
-        setError('登录失败，请重试')
-        setLoading(false)
+    try {
+      if (mode === 'register') {
+        const result = await signUp(phone, password)
+        if (result.error) {
+          setError(result.error)
+        } else {
+          navigate('/pricing')
+        }
+      } else {
+        const result = await signIn(phone, password)
+        if (result.error) {
+          setError(result.error)
+        } else {
+          navigate('/pricing')
+        }
       }
-    }, 500)
+    } catch {
+      setError('操作失败，请重试')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const toggleMode = () => {
@@ -160,7 +167,7 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="请输入密码（至少4位）"
+                placeholder="请输入密码（至少6位）"
                 className="w-full px-4 py-3 rounded-xl border-2 border-navy-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-all pr-12"
               />
               <button
@@ -178,7 +185,11 @@ export default function Login() {
             disabled={loading}
             className="btn-primary w-full !py-3 text-base disabled:opacity-50"
           >
-            {loading ? '请稍候...' : mode === 'login' ? '登录' : '注册并登录'}
+            {loading ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />请稍候...</>
+            ) : (
+              mode === 'login' ? '登录' : '注册并登录'
+            )}
           </button>
         </form>
 
@@ -222,8 +233,7 @@ export default function Login() {
       {/* Note */}
       <div className="mt-4 p-4 rounded-xl bg-brand-50 border border-brand-100">
         <p className="text-xs text-brand-600">
-          <strong>隐私说明：</strong>所有数据仅存储在你的浏览器本地，不会上传到任何服务器。
-          手机号仅用于登录标识，我们不会收集或分享你的个人信息。
+          <strong>隐私说明：</strong>你的账号数据通过 Supabase 安全存储。文档处理仍在你浏览器中本地完成，不会上传任何文件到服务器。
         </p>
       </div>
     </div>
