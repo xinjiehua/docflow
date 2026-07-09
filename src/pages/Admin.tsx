@@ -6,6 +6,7 @@ import {
   ChevronDown, ChevronUp, Copy, ClipboardCheck, Loader2
 } from 'lucide-react'
 import { useUserStore, PaymentRecord, UserProfile } from '@/stores/user'
+import { supabase } from '@/lib/supabase'
 
 const ADMIN_EMAIL = 'admin@docflow.local'
 const ADMIN_PASSWORD = 'docflow2024'
@@ -15,6 +16,7 @@ export default function Admin() {
   const {
     currentUser,
     signIn,
+    fetchProfile,
     getPayments,
     getAllUsers,
     verifyPayment,
@@ -40,10 +42,26 @@ export default function Admin() {
 
   // Check if current user is already admin
   useEffect(() => {
-    if (currentUser && currentUser.plan === 'admin') {
+    if (currentUser?.plan === 'admin') {
       setAuthenticated(true)
     }
-  }, [currentUser])
+  }, [currentUser, currentUser?.plan])
+
+  // Double-check: if already logged in as admin from zustand store, auto-authenticate
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { session } = await supabase.auth.getSession()
+      if (session?.user) {
+        const profile = await fetchProfile(session.user.id)
+        if (profile?.plan === 'admin' && !authenticated) {
+          setAuthenticated(true)
+        }
+      }
+    }
+    if (!authenticated && !loginLoading) {
+      checkAuth()
+    }
+  }, [])
 
   const loadData = async () => {
     setLoading(true)
