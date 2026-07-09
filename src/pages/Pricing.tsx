@@ -1,54 +1,89 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Check, X, Zap, Crown, QrCode, MessageCircle, Copy, ClipboardCheck, LogIn, Key, Clock, Loader2 } from 'lucide-react'
+import { Check, X, Zap, Crown, QrCode, MessageCircle, Copy, ClipboardCheck, LogIn, Key, Clock, Loader2, Star } from 'lucide-react'
 import { useUserStore, PaymentRecord, UserProfile } from '@/stores/user'
 
-const plans = [
+export interface PlanOption {
+  id: string
+  name: string
+  duration: number      // days
+  price: number         // yuan
+  unitPrice: number     // per month equivalent
+  badge: string | null  // e.g. '最受欢迎', '超值'
+  highlight: boolean
+}
+
+const planOptions: PlanOption[] = [
   {
-    name: '免费版',
-    description: '个人日常使用足够',
-    price: '0',
-    period: '',
-    icon: <Zap className="w-6 h-6" />,
+    id: 'monthly',
+    name: '月付',
+    duration: 30,
+    price: 29,
+    unitPrice: 29,
+    badge: null,
     highlight: false,
-    features: [
-      { text: '每日5次免费处理', included: true },
-      { text: '所有PDF工具', included: true },
-      { text: '格式转换', included: true },
-      { text: '发票OCR识别', included: true },
-      { text: '单文件最大10MB', included: true },
-      { text: '批量处理', included: false },
-      { text: '无水印导出', included: false },
-      { text: '优先客服支持', included: false },
-    ],
-    cta: '免费开始',
-    ctaHref: '/tools/pdf-merge',
-    ctaClass: 'btn-secondary w-full',
   },
   {
-    name: '专业版',
-    description: '适合办公和商业使用',
-    price: '29',
-    period: '/月',
-    icon: <Crown className="w-6 h-6" />,
+    id: 'quarterly',
+    name: '季付',
+    duration: 90,
+    price: 79,
+    unitPrice: 26.3,
+    badge: null,
+    highlight: false,
+  },
+  {
+    id: 'semiannual',
+    name: '半年付',
+    duration: 180,
+    price: 149,
+    unitPrice: 24.8,
+    badge: '最受欢迎',
     highlight: true,
-    features: [
-      { text: '无限次处理', included: true },
-      { text: '所有PDF工具', included: true },
-      { text: '格式转换', included: true },
-      { text: '发票OCR识别', included: true },
-      { text: '单文件最大100MB', included: true },
-      { text: '批量处理', included: true },
-      { text: '无水印导出', included: true },
-      { text: '优先客服支持', included: true },
-    ],
-    cta: '扫码升级',
-    ctaClass: 'btn-primary w-full',
-    ctaAction: 'pay',
+  },
+  {
+    id: 'yearly',
+    name: '年付',
+    duration: 365,
+    price: 259,
+    unitPrice: 21.6,
+    badge: null,
+    highlight: false,
+  },
+  {
+    id: 'threeyear',
+    name: '三年付',
+    duration: 1095,
+    price: 699,
+    unitPrice: 19.4,
+    badge: '超值',
+    highlight: false,
   },
 ]
 
-function PaymentModal({ onClose }: { onClose: () => void }) {
+const freeFeatures = [
+  { text: '每日5次免费处理', included: true },
+  { text: '所有PDF工具', included: true },
+  { text: '格式转换', included: true },
+  { text: '发票OCR识别', included: true },
+  { text: '单文件最大10MB', included: true },
+  { text: '批量处理', included: false },
+  { text: '无水印导出', included: false },
+  { text: '优先客服支持', included: false },
+]
+
+const proFeatures = [
+  { text: '无限次处理', included: true },
+  { text: '所有PDF工具', included: true },
+  { text: '格式转换', included: true },
+  { text: '发票OCR识别', included: true },
+  { text: '单文件最大100MB', included: true },
+  { text: '批量处理', included: true },
+  { text: '无水印导出', included: true },
+  { text: '优先客服支持', included: true },
+]
+
+function PaymentModal({ onClose, selectedPlan }: { onClose: () => void; selectedPlan: PlanOption }) {
   const [step, setStep] = useState(1)
   const [copied, setCopied] = useState(false)
   const [transactionId, setTransactionId] = useState('')
@@ -72,7 +107,7 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
     if (!transactionId.trim()) return
     setSubmitting(true)
     try {
-      const result = await submitPayment(transactionId.trim())
+      const result = await submitPayment(transactionId.trim(), selectedPlan.price, selectedPlan.duration)
       if (result) {
         setSubmitStatus('success')
         setStep(2)
@@ -155,7 +190,7 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
         <div className="bg-gradient-to-r from-brand-500 to-cyan-500 p-6 text-white text-center">
           <Crown className="w-10 h-10 mx-auto mb-2" />
           <h2 className="text-xl font-display font-bold">升级到专业版</h2>
-          <p className="text-sm opacity-90 mt-1">29 元 / 月 - 无限次处理</p>
+          <p className="text-sm opacity-90 mt-1">{selectedPlan.name} · {selectedPlan.duration}天 · ¥{selectedPlan.price}</p>
         </div>
 
         {/* Steps */}
@@ -186,7 +221,8 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
             <div className="text-center">
               <h3 className="font-medium text-navy-700 mb-3">第一步：扫码支付</h3>
               <p className="text-sm text-navy-500 mb-4">
-                打开微信，扫描下方收款码支付 <span className="font-bold text-brand-600">29 元</span>
+                打开微信，扫描下方收款码支付 <span className="font-bold text-brand-600">¥{selectedPlan.price}</span>
+                <span className="text-xs text-navy-400 ml-1">（{selectedPlan.name}）</span>
               </p>
               <div className="inline-block p-3 bg-white rounded-2xl border-2 border-navy-100 shadow-md">
                 <img
@@ -385,12 +421,12 @@ function Step3Done({ currentUser, daysRemaining, onClose, navigate }: {
 
 export default function Pricing() {
   const [showPayModal, setShowPayModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<PlanOption>(planOptions.find(p => p.highlight) || planOptions[0])
   const { isLoggedIn, isPro, currentUser, daysRemaining } = useUserStore()
 
-  const handlePlanAction = (plan: typeof plans[number]) => {
-    if ('ctaAction' in plan && plan.ctaAction === 'pay') {
-      setShowPayModal(true)
-    }
+  const handleSelectPlan = (plan: PlanOption) => {
+    setSelectedPlan(plan)
+    setShowPayModal(true)
   }
 
   return (
@@ -443,85 +479,91 @@ export default function Pricing() {
         </p>
       </div>
 
-      {/* Plans */}
-      <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-        {plans.map((plan) => (
-          <div
-            key={plan.name}
-            className={`card relative ${plan.highlight ? '!border-brand-300 !shadow-lg !shadow-brand-100' : ''}`}
-          >
-            {plan.highlight && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-brand-500 to-cyan-500 text-white text-xs font-medium">
-                推荐
-              </div>
-            )}
-
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  plan.highlight
-                    ? 'bg-gradient-to-br from-brand-400 to-cyan-500 text-white'
-                    : 'bg-navy-50 text-navy-500'
-                }`}
-              >
-                {plan.icon}
-              </div>
-              <div>
-                <h2 className="text-lg font-display font-bold text-navy-800">
-                  {plan.name}
-                </h2>
-                <p className="text-sm text-navy-400">{plan.description}</p>
-              </div>
+      {/* Free Plan */}
+      <div className="max-w-sm mx-auto mb-10">
+        <div className="card">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-navy-50 text-navy-500">
+              <Zap className="w-6 h-6" />
             </div>
-
-            <div className="mb-6">
-              <span className="text-4xl font-display font-bold text-navy-800">
-                {plan.price === '0' ? '免费' : ''}
-              </span>
-              {plan.price !== '0' && (
-                <>
-                  <span className="text-4xl font-display font-bold text-navy-800">
-                    {plan.price}
-                  </span>
-                  <span className="text-navy-400 ml-1">{plan.period}</span>
-                </>
-              )}
+            <div>
+              <h2 className="text-lg font-display font-bold text-navy-800">免费版</h2>
+              <p className="text-sm text-navy-400">个人日常使用足够</p>
             </div>
-
-            <ul className="space-y-3 mb-8">
-              {plan.features.map((feature) => (
-                <li key={feature.text} className="flex items-center gap-2.5 text-sm">
-                  {feature.included ? (
-                    <Check className="w-4 h-4 text-brand-500 shrink-0" />
-                  ) : (
-                    <X className="w-4 h-4 text-navy-300 shrink-0" />
-                  )}
-                  <span
-                    className={
-                      feature.included ? 'text-navy-600' : 'text-navy-300'
-                    }
-                  >
-                    {feature.text}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            {'ctaAction' in plan ? (
-              <button
-                onClick={() => handlePlanAction(plan)}
-                className={plan.ctaClass}
-              >
-                <QrCode className="w-5 h-5 mr-2" />
-                {plan.cta}
-              </button>
-            ) : (
-              <Link to={plan.ctaHref} className={`${plan.ctaClass} no-underline`}>
-                {plan.cta}
-              </Link>
-            )}
           </div>
-        ))}
+          <div className="mb-6">
+            <span className="text-4xl font-display font-bold text-navy-800">免费</span>
+          </div>
+          <ul className="space-y-3 mb-6">
+            {freeFeatures.map((f) => (
+              <li key={f.text} className="flex items-center gap-2.5 text-sm">
+                {f.included ? (
+                  <Check className="w-4 h-4 text-brand-500 shrink-0" />
+                ) : (
+                  <X className="w-4 h-4 text-navy-300 shrink-0" />
+                )}
+                <span className={f.included ? 'text-navy-600' : 'text-navy-300'}>{f.text}</span>
+              </li>
+            ))}
+          </ul>
+          <Link to="/tools/pdf-merge" className="btn-secondary w-full no-underline">免费开始</Link>
+        </div>
+      </div>
+
+      {/* Pro Plans */}
+      <div className="mb-10">
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-400 to-cyan-500 flex items-center justify-center">
+            <Crown className="w-6 h-6 text-white" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-2xl font-display font-bold text-navy-800">专业版</h2>
+            <p className="text-sm text-navy-500">无限次处理，长时更优惠</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+          {planOptions.map((plan) => (
+            <button
+              key={plan.id}
+              onClick={() => handleSelectPlan(plan)}
+              className={`card !p-5 w-[160px] text-left transition-all hover:scale-105 cursor-pointer border-2 ${
+                plan.highlight
+                  ? '!border-brand-400 !shadow-lg !shadow-brand-100'
+                  : selectedPlan?.id === plan.id
+                  ? '!border-brand-300'
+                  : 'hover:!border-brand-200'
+              }`}
+            >
+              {plan.badge && (
+                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium mb-2 ${
+                  plan.badge === '超值'
+                    ? 'bg-amber-100 text-amber-700'
+                    : 'bg-brand-100 text-brand-700'
+                }`}>
+                  {plan.badge}
+                </span>
+              )}
+              <p className="text-sm font-medium text-navy-700 mb-1">{plan.name}</p>
+              <p className="text-2xl font-display font-bold text-navy-800">
+                <span className="text-base">¥</span>{plan.price}
+              </p>
+              <p className="text-xs text-navy-400 mt-1">{plan.duration}天</p>
+              <p className="text-xs text-brand-500 mt-1">折合 ¥{plan.unitPrice}/月</p>
+            </button>
+          ))}
+        </div>
+
+        {/* Pro Features Summary */}
+        <div className="max-w-3xl mx-auto mt-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {proFeatures.map((f) => (
+              <div key={f.text} className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg bg-brand-50/50">
+                <Check className="w-4 h-4 text-brand-500 shrink-0" />
+                <span className="text-navy-600">{f.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Payment Flow */}
@@ -533,7 +575,7 @@ export default function Pricing() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
             {[
               { num: '1', title: '注册登录', desc: '手机号注册账号' },
-              { num: '2', title: '扫码支付', desc: '微信扫码29元' },
+              { num: '2', title: '扫码支付', desc: '选择套餐微信扫码' },
               { num: '3', title: '输入激活码', desc: '客服审核后自动开通' },
             ].map((item, idx) => (
               <div key={item.num} className="flex flex-col items-center text-center flex-1">
@@ -550,7 +592,7 @@ export default function Pricing() {
           </div>
           <div className="mt-6 text-center">
             <button
-              onClick={() => setShowPayModal(true)}
+              onClick={() => handleSelectPlan(selectedPlan)}
               className="btn-primary"
             >
               <QrCode className="w-4 h-4 mr-2" />
@@ -585,7 +627,7 @@ export default function Pricing() {
             },
             {
               q: '可以随时取消订阅吗?',
-              a: '当然可以。专业版按月订阅，到期后自动回到免费版。如需退款请联系客服。',
+              a: '当然可以。专业版到期后自动回到免费版。不同套餐时长越长越优惠，如需退款请联系客服。',
             },
             {
               q: '支付后多久能开通?',
@@ -603,7 +645,7 @@ export default function Pricing() {
       </div>
 
       {/* Payment Modal */}
-      {showPayModal && <PaymentModal onClose={() => setShowPayModal(false)} />}
+      {showPayModal && selectedPlan && <PaymentModal onClose={() => setShowPayModal(false)} selectedPlan={selectedPlan} />}
     </div>
   )
 }

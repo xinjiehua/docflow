@@ -20,6 +20,7 @@ export interface PaymentRecord {
   created_at: string
   verified_at: string | null
   activation_code: string | null
+  duration_days: number
 }
 
 interface UserState {
@@ -39,7 +40,7 @@ interface UserState {
   fetchProfile: (userId: string) => Promise<UserProfile | null>
 
   // Payment actions
-  submitPayment: (transactionId: string) => Promise<PaymentRecord | null>
+  submitPayment: (transactionId: string, amount?: number, durationDays?: number) => Promise<PaymentRecord | null>
   getPayments: () => Promise<PaymentRecord[]>
   verifyPayment: (paymentId: string) => Promise<PaymentRecord | null>
   rejectPayment: (paymentId: string) => Promise<boolean>
@@ -79,6 +80,7 @@ function mapPayment(row: Record<string, unknown>): PaymentRecord {
     created_at: row.created_at as string,
     verified_at: row.verified_at as string | null,
     activation_code: row.activation_code as string | null,
+    duration_days: (row.duration_days as number) || 30,
   }
 }
 
@@ -269,7 +271,7 @@ export const useUserStore = create<UserState>()((set, get) => ({
     return profile
   },
 
-  submitPayment: async (transactionId: string) => {
+  submitPayment: async (transactionId: string, amount = 29, durationDays = 30) => {
     const { currentUser } = get()
     if (!currentUser) return null
 
@@ -278,9 +280,10 @@ export const useUserStore = create<UserState>()((set, get) => ({
       .insert({
         user_id: currentUser.id,
         phone: currentUser.phone,
-        amount: 29,
+        amount,
         transaction_id: transactionId,
         status: 'pending',
+        duration_days: durationDays,
       })
       .select()
       .single()
@@ -414,8 +417,9 @@ export const useUserStore = create<UserState>()((set, get) => ({
 
     if (error || !data) return false
 
-    // Activate: upgrade user 30 days
-    const success = await get().upgradeUser(currentUser.id, 30)
+    // Activate: upgrade user using the duration from the payment record
+    const payment = mapPayment(data)
+    const success = await get().upgradeUser(currentUser.id, payment.duration_days)
     if (success) {
       // Refresh profile from DB to ensure consistency
       const refreshedProfile = await get().fetchProfile(currentUser.id)

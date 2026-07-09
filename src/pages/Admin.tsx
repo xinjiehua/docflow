@@ -433,6 +433,7 @@ function PaymentCard({
 
           <div className="text-right shrink-0">
             <p className="text-lg font-bold text-navy-800">&yen;{payment.amount}</p>
+            <p className="text-xs text-navy-400">{payment.duration_days}天套餐</p>
           </div>
 
           <ChevronDown className={`w-5 h-5 text-navy-300 transition-transform ${expanded ? 'rotate-180' : ''}`} />
