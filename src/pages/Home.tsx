@@ -4,12 +4,14 @@ import {
   ArrowRightLeft, FileText, Image, Table,
   ScanLine, Layers, Shield, Zap, Lock,
   ChevronRight, Star, Users, Clock, ImageIcon, Crop, RotateCw,
+  Hash, PenTool, QrCode, FileUp, Mic, Volume2, FolderOpen, FileSpreadsheet,
+  Columns, Type, Eraser, FileCheck, GitCompare, FileSignature, Music,
 } from 'lucide-react'
 
 const toolCategories = [
   {
     title: 'PDF 工具箱',
-    description: '合并、拆分、水印、压缩、加密',
+    description: '合并、拆分、水印、压缩、加密、页码、提取',
     icon: <Layers className="w-6 h-6" />,
     gradient: 'from-blue-500 to-cyan-500',
     tools: [
@@ -19,11 +21,14 @@ const toolCategories = [
       { name: 'PDF 压缩', desc: '减小PDF文件体积', icon: <FileDown className="w-5 h-5" />, href: '/tools/pdf-compress' },
       { name: 'PDF 转图片', desc: '将PDF每页导出为PNG/JPG图片', icon: <ImageIcon className="w-5 h-5" />, href: '/tools/pdf-to-image' },
       { name: 'PDF 加密/解密', desc: '添加或移除PDF密码保护', icon: <Lock className="w-5 h-5" />, href: '/tools/pdf-encrypt' },
+      { name: 'PDF 提取页面', desc: '提取或删除PDF指定页面', icon: <Layers className="w-5 h-5" />, href: '/tools/pdf-extract-pages' },
+      { name: 'PDF 添加页码', desc: '为PDF每页添加页码', icon: <Hash className="w-5 h-5" />, href: '/tools/pdf-add-page-numbers' },
+      { name: 'PDF 转 Excel', desc: '提取PDF文字内容转为Excel表格', icon: <Table className="w-5 h-5" />, href: '/tools/pdf-to-excel' },
     ],
   },
   {
     title: '格式转换',
-    description: 'Word、Excel、PDF、图片互转',
+    description: 'Word、Excel、PDF、图片、Markdown互转',
     icon: <ArrowRightLeft className="w-6 h-6" />,
     gradient: 'from-purple-500 to-pink-500',
     tools: [
@@ -34,18 +39,47 @@ const toolCategories = [
       { name: 'Word 转 Excel', desc: '提取Word表格数据转为Excel', icon: <Table className="w-5 h-5" />, href: '/tools/convert-word-to-excel' },
       { name: '图片格式转换', desc: 'PNG、JPG、WebP格式互转', icon: <ArrowRightLeft className="w-5 h-5" />, href: '/tools/image-format-convert' },
       { name: '图片压缩', desc: '压缩图片体积，支持批量处理', icon: <FileDown className="w-5 h-5" />, href: '/tools/image-compress' },
+      { name: 'Markdown 转 PDF', desc: 'Markdown文档转为PDF文件', icon: <FileText className="w-5 h-5" />, href: '/tools/markdown-to-pdf' },
     ],
   },
   {
-    title: '智能识别 & 批量处理',
-    description: 'OCR识别、裁剪旋转提升效率',
+    title: '图片处理',
+    description: '裁剪旋转、调整大小、水印、去背景',
+    icon: <ImageIcon className="w-6 h-6" />,
+    gradient: 'from-emerald-500 to-teal-500',
+    tools: [
+      { name: '图片裁剪/旋转', desc: '在线裁剪、旋转、翻转图片', icon: <Crop className="w-5 h-5" />, href: '/tools/image-crop-rotate' },
+      { name: '图片调整大小', desc: '按比例或指定尺寸调整图片', icon: <ImageIcon className="w-5 h-5" />, href: '/tools/image-resize' },
+      { name: '图片添加水印', desc: '为图片添加文字水印', icon: <Droplets className="w-5 h-5" />, href: '/tools/image-watermark' },
+      { name: '图片去背景', desc: '去除图片背景色，变透明', icon: <Eraser className="w-5 h-5" />, href: '/tools/image-remove-bg' },
+      { name: '图片去水印', desc: '框选区域去除图片水印', icon: <Eraser className="w-5 h-5" />, href: '/tools/image-remove-watermark' },
+    ],
+  },
+  {
+    title: '智能识别 & 对比',
+    description: 'OCR识别、文档对比，提升工作效率',
     icon: <ScanLine className="w-6 h-6" />,
     gradient: 'from-amber-500 to-orange-500',
     tools: [
       { name: '发票 OCR 识别', desc: '自动提取发票关键信息', icon: <ScanLine className="w-5 h-5" />, href: '/tools/invoice-ocr' },
       { name: '文字识别 OCR', desc: '从图片中提取可编辑文字', icon: <ScanLine className="w-5 h-5" />, href: '/tools/general-ocr' },
+      { name: '文档对比', desc: '对比两段文本的差异', icon: <GitCompare className="w-5 h-5" />, href: '/tools/document-compare' },
+    ],
+  },
+  {
+    title: '批量处理 & 办公工具',
+    description: '批量水印、批量重命名、二维码、签名、合同模板',
+    icon: <Zap className="w-6 h-6" />,
+    gradient: 'from-indigo-500 to-violet-500',
+    tools: [
       { name: '批量水印', desc: '为多个文件同时添加水印', icon: <Layers className="w-5 h-5" />, href: '/tools/batch-watermark' },
-      { name: '图片裁剪/旋转', desc: '在线裁剪、旋转、翻转图片', icon: <Crop className="w-5 h-5" />, href: '/tools/image-crop-rotate' },
+      { name: '批量重命名', desc: '按规则批量修改文件名', icon: <FolderOpen className="w-5 h-5" />, href: '/tools/batch-rename' },
+      { name: '二维码生成', desc: '输入文字生成二维码图片', icon: <QrCode className="w-5 h-5" />, href: '/tools/qr-code-generator' },
+      { name: '电子签名', desc: '手写签名并嵌入PDF或图片', icon: <PenTool className="w-5 h-5" />, href: '/tools/e-signature' },
+      { name: '合同模板', desc: '快速生成常用合同文档', icon: <FileSignature className="w-5 h-5" />, href: '/tools/contract-templates' },
+      { name: '音频转文字', desc: '将音频语音转为可编辑文字', icon: <Mic className="w-5 h-5" />, href: '/tools/audio-to-text' },
+      { name: '文字转语音', desc: '将文字内容朗读出来', icon: <Volume2 className="w-5 h-5" />, href: '/tools/text-to-speech' },
+      { name: '在线表格编辑', desc: '创建编辑表格，导入导出CSV', icon: <FileSpreadsheet className="w-5 h-5" />, href: '/tools/online-spreadsheet' },
     ],
   },
 ]
@@ -83,7 +117,7 @@ export default function Home() {
 
           <p className="mt-6 text-lg sm:text-xl text-navy-500 max-w-2xl mx-auto leading-relaxed animate-fade-in-up stagger-2">
             PDF处理、格式转换、OCR文字识别、图片编辑 --
-            17+款办公工具，无需安装软件，打开网页即可使用
+            34+款办公工具，无需安装软件，打开网页即可使用
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up stagger-3">
