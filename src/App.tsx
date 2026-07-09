@@ -76,6 +76,120 @@ import UrlEncoderDecoder from '@/pages/tools/UrlEncoderDecoder'
 import JwtDecoder from '@/pages/tools/JwtDecoder'
 import BaseConverter from '@/pages/tools/BaseConverter'
 
+// Batch 6: 20 PPT Tools
+import PptToImage from '@/pages/tools/PptToImage'
+import ImageToPpt from '@/pages/tools/ImageToPpt'
+import PdfToPpt from '@/pages/tools/PdfToPpt'
+import PptToPdf from '@/pages/tools/PptToPdf'
+import PptMerge from '@/pages/tools/PptMerge'
+import PptSplit from '@/pages/tools/PptSplit'
+import PptExtractImages from '@/pages/tools/PptExtractImages'
+import PptExtractText from '@/pages/tools/PptExtractText'
+import PptCompress from '@/pages/tools/PptCompress'
+import PptRearrange from '@/pages/tools/PptRearrange'
+import PptAddWatermark from '@/pages/tools/PptAddWatermark'
+import MarkdownToPpt from '@/pages/tools/MarkdownToPpt'
+import PptTemplateMaker from '@/pages/tools/PptTemplateMaker'
+import PptReplaceText from '@/pages/tools/PptReplaceText'
+import PptToWord from '@/pages/tools/PptToWord'
+import PptDeletePages from '@/pages/tools/PptDeletePages'
+import PptAddPageNumbers from '@/pages/tools/PptAddPageNumbers'
+import PptExtractMedia from '@/pages/tools/PptExtractMedia'
+import PptToLongImage from '@/pages/tools/PptToLongImage'
+import PptThemeColor from '@/pages/tools/PptThemeColor'
+// Batch 7: 19 PDF/Convert/Image Tools
+import PdfEditor from '@/pages/tools/PdfEditor'
+import PdfCrop from '@/pages/tools/PdfCrop'
+import PdfAddText from '@/pages/tools/PdfAddText'
+import PdfTranslate from '@/pages/tools/PdfTranslate'
+import PdfToText from '@/pages/tools/PdfToText'
+import PdfToCsv from '@/pages/tools/PdfToCsv'
+import EpubToPdf from '@/pages/tools/EpubToPdf'
+import PdfToEpub from '@/pages/tools/PdfToEpub'
+import PdfRearrange from '@/pages/tools/PdfRearrange'
+import CsvToExcel from '@/pages/tools/CsvToExcel'
+import ExcelToCsv from '@/pages/tools/ExcelToCsv'
+import XmlToJson from '@/pages/tools/XmlToJson'
+import JsonToXml from '@/pages/tools/JsonToXml'
+import ImageMosaic from '@/pages/tools/ImageMosaic'
+import ImageFreeCollage from '@/pages/tools/ImageFreeCollage'
+import ImageRound from '@/pages/tools/ImageRound'
+import ImageFlip from '@/pages/tools/ImageFlip'
+import ImagePixelate from '@/pages/tools/ImagePixelate'
+import CollageMaker from '@/pages/tools/CollageMaker'
+// Batch 8: 14 Office/Utility Tools
+import MindMap from '@/pages/tools/MindMap'
+import FlowChart from '@/pages/tools/FlowChart'
+import IdPhotoMaker from '@/pages/tools/IdPhotoMaker'
+import ResumeGenerator from '@/pages/tools/ResumeGenerator'
+import CalendarMaker from '@/pages/tools/CalendarMaker'
+import LoremIpsum from '@/pages/tools/LoremIpsum'
+import WordCounter from '@/pages/tools/WordCounter'
+import HttpRequestTest from '@/pages/tools/HttpRequestTest'
+import ImageAddText from '@/pages/tools/ImageAddText'
+import ImageBlurBg from '@/pages/tools/ImageBlurBg'
+import GovDocFormat from '@/pages/tools/GovDocFormat'
+import FileFormatQuery from '@/pages/tools/FileFormatQuery'
+import ImageSplit from '@/pages/tools/ImageSplit'
+import WatermarkPaper from '@/pages/tools/WatermarkPaper'
+
+// Batch 6: 20 PPT Tools
+import PptToImage from '@/pages/tools/PptToImage'
+import ImageToPpt from '@/pages/tools/ImageToPpt'
+import PdfToPpt from '@/pages/tools/PdfToPpt'
+import PptToPdf from '@/pages/tools/PptToPdf'
+import PptMerge from '@/pages/tools/PptMerge'
+import PptSplit from '@/pages/tools/PptSplit'
+import PptExtractImages from '@/pages/tools/PptExtractImages'
+import PptExtractText from '@/pages/tools/PptExtractText'
+import PptCompress from '@/pages/tools/PptCompress'
+import PptRearrange from '@/pages/tools/PptRearrange'
+import PptAddWatermark from '@/pages/tools/PptAddWatermark'
+import MarkdownToPpt from '@/pages/tools/MarkdownToPpt'
+import PptTemplateMaker from '@/pages/tools/PptTemplateMaker'
+import PptReplaceText from '@/pages/tools/PptReplaceText'
+import PptToWord from '@/pages/tools/PptToWord'
+import PptDeletePages from '@/pages/tools/PptDeletePages'
+import PptAddPageNumbers from '@/pages/tools/PptAddPageNumbers'
+import PptExtractMedia from '@/pages/tools/PptExtractMedia'
+import PptToLongImage from '@/pages/tools/PptToLongImage'
+import PptThemeColor from '@/pages/tools/PptThemeColor'
+// Batch 7: 19 PDF/Convert/Image Tools
+import PdfEditor from '@/pages/tools/PdfEditor'
+import PdfCrop from '@/pages/tools/PdfCrop'
+import PdfAddText from '@/pages/tools/PdfAddText'
+import PdfTranslate from '@/pages/tools/PdfTranslate'
+import PdfToText from '@/pages/tools/PdfToText'
+import PdfToCsv from '@/pages/tools/PdfToCsv'
+import EpubToPdf from '@/pages/tools/EpubToPdf'
+import PdfToEpub from '@/pages/tools/PdfToEpub'
+import PdfRearrange from '@/pages/tools/PdfRearrange'
+import CsvToExcel from '@/pages/tools/CsvToExcel'
+import ExcelToCsv from '@/pages/tools/ExcelToCsv'
+import XmlToJson from '@/pages/tools/XmlToJson'
+import JsonToXml from '@/pages/tools/JsonToXml'
+import ImageMosaic from '@/pages/tools/ImageMosaic'
+import ImageFreeCollage from '@/pages/tools/ImageFreeCollage'
+import ImageRound from '@/pages/tools/ImageRound'
+import ImageFlip from '@/pages/tools/ImageFlip'
+import ImagePixelate from '@/pages/tools/ImagePixelate'
+import CollageMaker from '@/pages/tools/CollageMaker'
+// Batch 8: 14 Office/Utility Tools
+import MindMap from '@/pages/tools/MindMap'
+import FlowChart from '@/pages/tools/FlowChart'
+import IdPhotoMaker from '@/pages/tools/IdPhotoMaker'
+import ResumeGenerator from '@/pages/tools/ResumeGenerator'
+import CalendarMaker from '@/pages/tools/CalendarMaker'
+import LoremIpsum from '@/pages/tools/LoremIpsum'
+import WordCounter from '@/pages/tools/WordCounter'
+import HttpRequestTest from '@/pages/tools/HttpRequestTest'
+import ImageAddText from '@/pages/tools/ImageAddText'
+import ImageBlurBg from '@/pages/tools/ImageBlurBg'
+import GovDocFormat from '@/pages/tools/GovDocFormat'
+import FileFormatQuery from '@/pages/tools/FileFormatQuery'
+import ImageSplit from '@/pages/tools/ImageSplit'
+import WatermarkPaper from '@/pages/tools/WatermarkPaper'
+
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => {
@@ -181,6 +295,118 @@ function AppRoutes() {
       <Route path="/tools/url-encoder-decoder" element={<UrlEncoderDecoder />} />
       <Route path="/tools/jwt-decoder" element={<JwtDecoder />} />
       <Route path="/tools/base-converter" element={<BaseConverter />} />
+      {/* Batch 6: PPT Tools */}
+      <Route path="/tools/ppt-to-image" element={<PptToImage />} />
+      <Route path="/tools/image-to-ppt" element={<ImageToPpt />} />
+      <Route path="/tools/pdf-to-ppt" element={<PdfToPpt />} />
+      <Route path="/tools/ppt-to-pdf" element={<PptToPdf />} />
+      <Route path="/tools/ppt-merge" element={<PptMerge />} />
+      <Route path="/tools/ppt-split" element={<PptSplit />} />
+      <Route path="/tools/ppt-extract-images" element={<PptExtractImages />} />
+      <Route path="/tools/ppt-extract-text" element={<PptExtractText />} />
+      <Route path="/tools/ppt-compress" element={<PptCompress />} />
+      <Route path="/tools/ppt-rearrange" element={<PptRearrange />} />
+      <Route path="/tools/ppt-add-watermark" element={<PptAddWatermark />} />
+      <Route path="/tools/markdown-to-ppt" element={<MarkdownToPpt />} />
+      <Route path="/tools/ppt-template-maker" element={<PptTemplateMaker />} />
+      <Route path="/tools/ppt-replace-text" element={<PptReplaceText />} />
+      <Route path="/tools/ppt-to-word" element={<PptToWord />} />
+      <Route path="/tools/ppt-delete-pages" element={<PptDeletePages />} />
+      <Route path="/tools/ppt-add-page-numbers" element={<PptAddPageNumbers />} />
+      <Route path="/tools/ppt-extract-media" element={<PptExtractMedia />} />
+      <Route path="/tools/ppt-to-long-image" element={<PptToLongImage />} />
+      <Route path="/tools/ppt-theme-color" element={<PptThemeColor />} />
+      {/* Batch 7: PDF/Convert/Image Tools */}
+      <Route path="/tools/pdf-editor" element={<PdfEditor />} />
+      <Route path="/tools/pdf-crop" element={<PdfCrop />} />
+      <Route path="/tools/pdf-add-text" element={<PdfAddText />} />
+      <Route path="/tools/pdf-translate" element={<PdfTranslate />} />
+      <Route path="/tools/pdf-to-text" element={<PdfToText />} />
+      <Route path="/tools/pdf-to-csv" element={<PdfToCsv />} />
+      <Route path="/tools/epub-to-pdf" element={<EpubToPdf />} />
+      <Route path="/tools/pdf-to-epub" element={<PdfToEpub />} />
+      <Route path="/tools/pdf-rearrange" element={<PdfRearrange />} />
+      <Route path="/tools/csv-to-excel" element={<CsvToExcel />} />
+      <Route path="/tools/excel-to-csv" element={<ExcelToCsv />} />
+      <Route path="/tools/xml-to-json" element={<XmlToJson />} />
+      <Route path="/tools/json-to-xml" element={<JsonToXml />} />
+      <Route path="/tools/image-mosaic" element={<ImageMosaic />} />
+      <Route path="/tools/image-free-collage" element={<ImageFreeCollage />} />
+      <Route path="/tools/image-round" element={<ImageRound />} />
+      <Route path="/tools/image-flip" element={<ImageFlip />} />
+      <Route path="/tools/image-pixelate" element={<ImagePixelate />} />
+      <Route path="/tools/collage-maker" element={<CollageMaker />} />
+      {/* Batch 8: Office/Utility Tools */}
+      <Route path="/tools/mind-map" element={<MindMap />} />
+      <Route path="/tools/flow-chart" element={<FlowChart />} />
+      <Route path="/tools/id-photo-maker" element={<IdPhotoMaker />} />
+      <Route path="/tools/resume-generator" element={<ResumeGenerator />} />
+      <Route path="/tools/calendar-maker" element={<CalendarMaker />} />
+      <Route path="/tools/lorem-ipsum" element={<LoremIpsum />} />
+      <Route path="/tools/word-counter" element={<WordCounter />} />
+      <Route path="/tools/http-request-test" element={<HttpRequestTest />} />
+      <Route path="/tools/image-add-text" element={<ImageAddText />} />
+      <Route path="/tools/image-blur-bg" element={<ImageBlurBg />} />
+      <Route path="/tools/gov-doc-format" element={<GovDocFormat />} />
+      <Route path="/tools/file-format-query" element={<FileFormatQuery />} />
+      <Route path="/tools/image-split" element={<ImageSplit />} />
+      <Route path="/tools/watermark-paper" element={<WatermarkPaper />} />
+      {/* Batch 6: PPT Tools */}
+      <Route path="/tools/ppt-to-image" element={<PptToImage />} />
+      <Route path="/tools/image-to-ppt" element={<ImageToPpt />} />
+      <Route path="/tools/pdf-to-ppt" element={<PdfToPpt />} />
+      <Route path="/tools/ppt-to-pdf" element={<PptToPdf />} />
+      <Route path="/tools/ppt-merge" element={<PptMerge />} />
+      <Route path="/tools/ppt-split" element={<PptSplit />} />
+      <Route path="/tools/ppt-extract-images" element={<PptExtractImages />} />
+      <Route path="/tools/ppt-extract-text" element={<PptExtractText />} />
+      <Route path="/tools/ppt-compress" element={<PptCompress />} />
+      <Route path="/tools/ppt-rearrange" element={<PptRearrange />} />
+      <Route path="/tools/ppt-add-watermark" element={<PptAddWatermark />} />
+      <Route path="/tools/markdown-to-ppt" element={<MarkdownToPpt />} />
+      <Route path="/tools/ppt-template-maker" element={<PptTemplateMaker />} />
+      <Route path="/tools/ppt-replace-text" element={<PptReplaceText />} />
+      <Route path="/tools/ppt-to-word" element={<PptToWord />} />
+      <Route path="/tools/ppt-delete-pages" element={<PptDeletePages />} />
+      <Route path="/tools/ppt-add-page-numbers" element={<PptAddPageNumbers />} />
+      <Route path="/tools/ppt-extract-media" element={<PptExtractMedia />} />
+      <Route path="/tools/ppt-to-long-image" element={<PptToLongImage />} />
+      <Route path="/tools/ppt-theme-color" element={<PptThemeColor />} />
+      {/* Batch 7: PDF/Convert/Image Tools */}
+      <Route path="/tools/pdf-editor" element={<PdfEditor />} />
+      <Route path="/tools/pdf-crop" element={<PdfCrop />} />
+      <Route path="/tools/pdf-add-text" element={<PdfAddText />} />
+      <Route path="/tools/pdf-translate" element={<PdfTranslate />} />
+      <Route path="/tools/pdf-to-text" element={<PdfToText />} />
+      <Route path="/tools/pdf-to-csv" element={<PdfToCsv />} />
+      <Route path="/tools/epub-to-pdf" element={<EpubToPdf />} />
+      <Route path="/tools/pdf-to-epub" element={<PdfToEpub />} />
+      <Route path="/tools/pdf-rearrange" element={<PdfRearrange />} />
+      <Route path="/tools/csv-to-excel" element={<CsvToExcel />} />
+      <Route path="/tools/excel-to-csv" element={<ExcelToCsv />} />
+      <Route path="/tools/xml-to-json" element={<XmlToJson />} />
+      <Route path="/tools/json-to-xml" element={<JsonToXml />} />
+      <Route path="/tools/image-mosaic" element={<ImageMosaic />} />
+      <Route path="/tools/image-free-collage" element={<ImageFreeCollage />} />
+      <Route path="/tools/image-round" element={<ImageRound />} />
+      <Route path="/tools/image-flip" element={<ImageFlip />} />
+      <Route path="/tools/image-pixelate" element={<ImagePixelate />} />
+      <Route path="/tools/collage-maker" element={<CollageMaker />} />
+      {/* Batch 8: Office/Utility Tools */}
+      <Route path="/tools/mind-map" element={<MindMap />} />
+      <Route path="/tools/flow-chart" element={<FlowChart />} />
+      <Route path="/tools/id-photo-maker" element={<IdPhotoMaker />} />
+      <Route path="/tools/resume-generator" element={<ResumeGenerator />} />
+      <Route path="/tools/calendar-maker" element={<CalendarMaker />} />
+      <Route path="/tools/lorem-ipsum" element={<LoremIpsum />} />
+      <Route path="/tools/word-counter" element={<WordCounter />} />
+      <Route path="/tools/http-request-test" element={<HttpRequestTest />} />
+      <Route path="/tools/image-add-text" element={<ImageAddText />} />
+      <Route path="/tools/image-blur-bg" element={<ImageBlurBg />} />
+      <Route path="/tools/gov-doc-format" element={<GovDocFormat />} />
+      <Route path="/tools/file-format-query" element={<FileFormatQuery />} />
+      <Route path="/tools/image-split" element={<ImageSplit />} />
+      <Route path="/tools/watermark-paper" element={<WatermarkPaper />} />
     </Routes>
   )
 }
