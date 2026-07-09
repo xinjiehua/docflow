@@ -62,7 +62,7 @@ export default function Admin() {
     setLoginLoading(true)
     setAuthError('')
     try {
-      const { error } = await signIn(ADMIN_EMAIL.replace('@docflow.local', ''), ADMIN_PASSWORD)
+      const { error } = await signIn('admin', ADMIN_PASSWORD)
       if (error) {
         setAuthError('管理员密码错误')
       }
