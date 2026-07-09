@@ -14,7 +14,7 @@ export default function Header() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const { isLoggedIn, currentUser, logout, isPro, daysRemaining } = useUserStore()
+  const { isLoggedIn, currentUser, signOut, isPro, daysRemaining } = useUserStore()
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-navy-200/60">
@@ -119,7 +119,7 @@ export default function Header() {
                       </Link>
                       <hr className="my-1 border-navy-100" />
                       <button
-                        onClick={() => { logout(); setUserMenuOpen(false) }}
+                        onClick={() => { signOut(); setUserMenuOpen(false) }}
                         className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 w-full"
                       >
                         <LogOut className="w-4 h-4" />
