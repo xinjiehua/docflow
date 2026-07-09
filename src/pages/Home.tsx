@@ -2,14 +2,14 @@ import { Link } from 'react-router-dom'
 import {
   Merge, Scissors, Droplets, FileDown,
   ArrowRightLeft, FileText, Image, Table,
-  ScanLine, Layers, Shield, Zap,
-  ChevronRight, Star, Users, Clock,
+  ScanLine, Layers, Shield, Zap, Lock,
+  ChevronRight, Star, Users, Clock, ImageIcon, Crop, RotateCw,
 } from 'lucide-react'
 
 const toolCategories = [
   {
     title: 'PDF 工具箱',
-    description: '合并、拆分、水印、压缩',
+    description: '合并、拆分、水印、压缩、加密',
     icon: <Layers className="w-6 h-6" />,
     gradient: 'from-blue-500 to-cyan-500',
     tools: [
@@ -17,6 +17,8 @@ const toolCategories = [
       { name: 'PDF 拆分', desc: '按页码范围拆分PDF文档', icon: <Scissors className="w-5 h-5" />, href: '/tools/pdf-split' },
       { name: 'PDF 水印', desc: '为PDF添加自定义文字水印', icon: <Droplets className="w-5 h-5" />, href: '/tools/pdf-watermark' },
       { name: 'PDF 压缩', desc: '减小PDF文件体积', icon: <FileDown className="w-5 h-5" />, href: '/tools/pdf-compress' },
+      { name: 'PDF 转图片', desc: '将PDF每页导出为PNG/JPG图片', icon: <ImageIcon className="w-5 h-5" />, href: '/tools/pdf-to-image' },
+      { name: 'PDF 加密/解密', desc: '添加或移除PDF密码保护', icon: <Lock className="w-5 h-5" />, href: '/tools/pdf-encrypt' },
     ],
   },
   {
@@ -29,16 +31,21 @@ const toolCategories = [
       { name: 'Word 转 PDF', desc: '将Word文档转为PDF格式', icon: <FileDown className="w-5 h-5" />, href: '/tools/convert-word-to-pdf' },
       { name: 'Excel 转 PDF', desc: '将表格转为PDF文档', icon: <Table className="w-5 h-5" />, href: '/tools/convert-excel-to-pdf' },
       { name: '图片转 PDF', desc: '多张图片合成PDF文档', icon: <Image className="w-5 h-5" />, href: '/tools/convert-image-to-pdf' },
+      { name: 'Word 转 Excel', desc: '提取Word表格数据转为Excel', icon: <Table className="w-5 h-5" />, href: '/tools/convert-word-to-excel' },
+      { name: '图片格式转换', desc: 'PNG、JPG、WebP格式互转', icon: <ArrowRightLeft className="w-5 h-5" />, href: '/tools/image-format-convert' },
+      { name: '图片压缩', desc: '压缩图片体积，支持批量处理', icon: <FileDown className="w-5 h-5" />, href: '/tools/image-compress' },
     ],
   },
   {
     title: '智能识别 & 批量处理',
-    description: 'OCR识别、批量操作提升效率',
+    description: 'OCR识别、裁剪旋转提升效率',
     icon: <ScanLine className="w-6 h-6" />,
     gradient: 'from-amber-500 to-orange-500',
     tools: [
       { name: '发票 OCR 识别', desc: '自动提取发票关键信息', icon: <ScanLine className="w-5 h-5" />, href: '/tools/invoice-ocr' },
+      { name: '文字识别 OCR', desc: '从图片中提取可编辑文字', icon: <ScanLine className="w-5 h-5" />, href: '/tools/general-ocr' },
       { name: '批量水印', desc: '为多个文件同时添加水印', icon: <Layers className="w-5 h-5" />, href: '/tools/batch-watermark' },
+      { name: '图片裁剪/旋转', desc: '在线裁剪、旋转、翻转图片', icon: <Crop className="w-5 h-5" />, href: '/tools/image-crop-rotate' },
     ],
   },
 ]
@@ -75,8 +82,8 @@ export default function Home() {
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-navy-500 max-w-2xl mx-auto leading-relaxed animate-fade-in-up stagger-2">
-            PDF合并拆分、格式转换、发票OCR识别、批量处理 --
-            无需安装软件，打开网页即可使用
+            PDF处理、格式转换、OCR文字识别、图片编辑 --
+            17+款办公工具，无需安装软件，打开网页即可使用
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up stagger-3">
