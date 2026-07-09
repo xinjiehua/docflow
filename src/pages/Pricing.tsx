@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, X, Zap, Crown, QrCode, MessageCircle, Copy, ClipboardCheck, LogIn, Key, Clock, Loader2 } from 'lucide-react'
-import { useUserStore, PaymentRecord } from '@/stores/user'
+import { useUserStore, PaymentRecord, UserProfile } from '@/stores/user'
 
 const plans = [
   {
@@ -125,7 +125,7 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
 
   // Already pro
   if (isPro()) {
-    const days = useUserStore.getState().daysRemaining()
+    const days = daysRemaining()
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
@@ -298,10 +298,10 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
                   <p className="text-brand-700 font-medium">激活成功！</p>
                   <p className="text-brand-600 text-sm mt-1">你已升级为专业版，可无限使用所有工具</p>
                   <button
-                    onClick={() => { onClose(); navigate('/') }}
+                    onClick={() => { setStep(3) }}
                     className="btn-primary mt-3"
                   >
-                    开始使用
+                    查看状态
                   </button>
                 </div>
               )}
@@ -337,22 +337,7 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
 
           {/* Step 3: Done info */}
           {step === 3 && (
-            <div className="text-center">
-              <h3 className="font-medium text-navy-700 mb-3">升级完成</h3>
-              <div className="p-6 rounded-2xl bg-brand-50 border border-brand-200">
-                <Crown className="w-10 h-10 text-brand-600 mx-auto mb-3" />
-                <p className="text-brand-700 font-medium">专业版已激活</p>
-                <p className="text-brand-600 text-sm mt-1">
-                  可无限使用所有文档处理工具
-                </p>
-              </div>
-              <button
-                onClick={() => { onClose(); navigate('/') }}
-                className="btn-primary mt-4 !px-8"
-              >
-                开始使用
-              </button>
-            </div>
+            <Step3Done currentUser={currentUser} daysRemaining={daysRemaining} onClose={onClose} navigate={navigate} />
           )}
         </div>
 
@@ -364,6 +349,36 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
           X
         </button>
       </div>
+    </div>
+  )
+}
+
+function Step3Done({ currentUser, daysRemaining, onClose, navigate }: {
+  currentUser: UserProfile | null
+  daysRemaining: () => number
+  onClose: () => void
+  navigate: ReturnType<typeof useNavigate>
+}) {
+  const days = daysRemaining()
+  return (
+    <div className="text-center">
+      <h3 className="font-medium text-navy-700 mb-3">升级完成</h3>
+      <div className="p-6 rounded-2xl bg-brand-50 border border-brand-200">
+        <Crown className="w-10 h-10 text-brand-600 mx-auto mb-3" />
+        <p className="text-brand-700 font-medium">专业版已激活</p>
+        <p className="text-brand-600 text-sm mt-1">
+          可无限使用所有文档处理工具
+        </p>
+        <p className="text-brand-600 text-sm mt-2">
+          剩余 <span className="font-bold">{days}</span> 天 · 到期 {currentUser?.expiry_date ? new Date(currentUser.expiry_date).toLocaleDateString('zh-CN') : '-'}
+        </p>
+      </div>
+      <button
+        onClick={() => { onClose(); navigate('/') }}
+        className="btn-primary mt-4 !px-8"
+      >
+        开始使用
+      </button>
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Shield, Users, CreditCard, Check, X, ArrowLeft,
   Clock, Phone, Crown, Key, Search,
@@ -8,11 +8,11 @@ import {
 import { useUserStore, PaymentRecord, UserProfile } from '@/stores/user'
 import { supabase } from '@/lib/supabase'
 
-const ADMIN_EMAIL = 'admin@docflow.local'
 const ADMIN_PASSWORD = 'docflow2024'
 
 export default function Admin() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const {
     currentUser,
     signIn,
@@ -40,28 +40,32 @@ export default function Admin() {
   const [loading, setLoading] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
-  // Check if current user is already admin
+  const [dataLoaded, setDataLoaded] = useState(false)
+  const preAuth = searchParams.get('pre_auth') === 'true'
+
+  // Single auth check: zustand state first, then pre_auth, fallback to Supabase session
   useEffect(() => {
     if (currentUser?.plan === 'admin') {
       setAuthenticated(true)
-    }
-  }, [currentUser, currentUser?.plan])
-
-  // Double-check: if already logged in as admin from zustand store, auto-authenticate
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { session } = await supabase.auth.getSession()
-      if (session?.user) {
-        const profile = await fetchProfile(session.user.id)
-        if (profile?.plan === 'admin' && !authenticated) {
-          setAuthenticated(true)
+    } else if (!authenticated && !loginLoading) {
+      const checkAndAuth = async () => {
+        if (preAuth) {
+          // Came from Login.tsx with password pre-verified, auto Supabase login
+          const { error } = await signIn('admin', ADMIN_PASSWORD)
+          if (!error) return // currentUser will update and trigger authenticated
+        }
+        // Fallback: check Supabase session directly
+        const { session } = await supabase.auth.getSession()
+        if (session?.user) {
+          const profile = await fetchProfile(session.user.id)
+          if (profile?.plan === 'admin') {
+            setAuthenticated(true)
+          }
         }
       }
+      checkAndAuth()
     }
-    if (!authenticated && !loginLoading) {
-      checkAuth()
-    }
-  }, [])
+  }, [currentUser, currentUser?.plan])
 
   const loadData = async () => {
     setLoading(true)
@@ -69,11 +73,12 @@ export default function Admin() {
     setPayments(p)
     setUsers(u)
     setLoading(false)
+    setDataLoaded(true)
   }
 
   useEffect(() => {
-    if (authenticated) loadData()
-  }, [authenticated])
+    if (authenticated && !dataLoaded) loadData()
+  }, [authenticated, dataLoaded])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

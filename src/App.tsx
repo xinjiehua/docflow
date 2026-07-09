@@ -26,7 +26,7 @@ function ScrollToTop() {
   return null
 }
 
-export default function App() {
+function AppRoutes() {
   const initialize = useUserStore((s) => s.initialize)
   const loading = useUserStore((s) => s.loading)
 
@@ -48,27 +48,33 @@ export default function App() {
   }
 
   return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/admin" element={<Admin />} />
+      <Route path="/tools/pdf-merge" element={<PdfMerge />} />
+      <Route path="/tools/pdf-split" element={<PdfSplit />} />
+      <Route path="/tools/pdf-watermark" element={<PdfWatermark />} />
+      <Route path="/tools/pdf-compress" element={<PdfCompress />} />
+      <Route path="/tools/convert-pdf-to-word" element={<ConvertPdfToWord />} />
+      <Route path="/tools/convert-word-to-pdf" element={<ConvertWordToPdf />} />
+      <Route path="/tools/convert-excel-to-pdf" element={<ConvertExcelToPdf />} />
+      <Route path="/tools/convert-image-to-pdf" element={<ConvertImageToPdf />} />
+      <Route path="/tools/invoice-ocr" element={<InvoiceOcr />} />
+      <Route path="/tools/batch-watermark" element={<BatchWatermark />} />
+    </Routes>
+  )
+}
+
+export default function App() {
+  return (
     <BrowserRouter>
-      <ScrollToTop />
       <div className="min-h-screen flex flex-col bg-navy-50">
         <Header />
         <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/tools/pdf-merge" element={<PdfMerge />} />
-            <Route path="/tools/pdf-split" element={<PdfSplit />} />
-            <Route path="/tools/pdf-watermark" element={<PdfWatermark />} />
-            <Route path="/tools/pdf-compress" element={<PdfCompress />} />
-            <Route path="/tools/convert-pdf-to-word" element={<ConvertPdfToWord />} />
-            <Route path="/tools/convert-word-to-pdf" element={<ConvertWordToPdf />} />
-            <Route path="/tools/convert-excel-to-pdf" element={<ConvertExcelToPdf />} />
-            <Route path="/tools/convert-image-to-pdf" element={<ConvertImageToPdf />} />
-            <Route path="/tools/invoice-ocr" element={<InvoiceOcr />} />
-            <Route path="/tools/batch-watermark" element={<BatchWatermark />} />
-          </Routes>
+          <ScrollToTop />
+          <AppRoutes />
         </main>
         <Footer />
       </div>

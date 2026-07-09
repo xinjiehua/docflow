@@ -69,7 +69,9 @@ export default function Header() {
                 </div>
                 <div className="hidden sm:block text-left">
                   <p className="text-xs font-medium text-navy-700 leading-tight">
-                    {currentUser.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')}
+                    {currentUser.phone.length >= 11
+                      ? currentUser.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
+                      : currentUser.phone}
                   </p>
                   {isPro() ? (
                     <p className="text-xs text-brand-600 leading-tight">
@@ -109,14 +111,16 @@ export default function Header() {
                           升级专业版
                         </Link>
                       )}
-                      <Link
-                        to="/pricing"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-navy-600 hover:bg-navy-50 no-underline"
-                      >
-                        <Crown className="w-4 h-4" />
-                        我的订阅
-                      </Link>
+                      {isPro() && (
+                        <Link
+                          to="/pricing"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-navy-600 hover:bg-navy-50 no-underline"
+                        >
+                          <Crown className="w-4 h-4" />
+                          我的订阅
+                        </Link>
+                      )}
                       <hr className="my-1 border-navy-100" />
                       <button
                         onClick={() => { signOut(); setUserMenuOpen(false) }}

@@ -62,10 +62,8 @@ export default function Login() {
 
     if (adminMode) {
       if (adminPassword === ADMIN_PASSWORD) {
-        // Admin password check passes, navigate to admin page
-        // Admin page will handle its own Supabase Auth login
-        sessionStorage.setItem('docflow-admin-pwd', 'true')
-        navigate('/admin')
+        // Navigate to admin page with pre-auth indicator
+        navigate('/admin?pre_auth=true')
         return
       }
       setError('管理员密码错误')

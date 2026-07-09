@@ -188,25 +188,49 @@ export const useUserStore = create<UserState>()((set, get) => ({
 
     if (data.user) {
       const profile = await get().fetchProfile(data.user.id)
-      set({
-        supabaseUser: data.user,
-        session: data.session,
-        isLoggedIn: true,
-        currentUser: profile || {
+      if (profile) {
+        set({
+          supabaseUser: data.user,
+          session: data.session,
+          isLoggedIn: true,
+          currentUser: profile,
+        })
+      } else {
+        // Profile not found (e.g. auth user exists but profile was deleted)
+        // Create a new profile
+        const { error: upsertError } = await supabase.from('profiles').upsert({
           id: data.user.id,
           phone,
           plan: 'free',
           expiry_date: null,
-          created_at: new Date().toISOString(),
-        },
-      })
+        })
+        if (!upsertError) {
+          const newProfile = await get().fetchProfile(data.user.id)
+          set({
+            supabaseUser: data.user,
+            session: data.session,
+            isLoggedIn: true,
+            currentUser: newProfile || {
+              id: data.user.id,
+              phone,
+              plan: 'free',
+              expiry_date: null,
+              created_at: new Date().toISOString(),
+            },
+          })
+        }
+      }
     }
 
     return { error: null }
   },
 
   signOut: async () => {
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {
+      console.error('Sign out error:', e)
+    }
     set({
       currentUser: null,
       supabaseUser: null,
@@ -388,7 +412,15 @@ export const useUserStore = create<UserState>()((set, get) => ({
     if (error || !data) return false
 
     // Activate: upgrade user 30 days
-    return get().upgradeUser(currentUser.id, 30)
+    const success = await get().upgradeUser(currentUser.id, 30)
+    if (success) {
+      // Refresh profile from DB to ensure consistency
+      const refreshedProfile = await get().fetchProfile(currentUser.id)
+      if (refreshedProfile) {
+        set({ currentUser: refreshedProfile })
+      }
+    }
+    return success
   },
 
   isPro: () => {
