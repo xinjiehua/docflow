@@ -1,0 +1,54 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
+import Home from '@/pages/Home'
+import Pricing from '@/pages/Pricing'
+import PdfMerge from '@/pages/tools/PdfMerge'
+import PdfSplit from '@/pages/tools/PdfSplit'
+import PdfWatermark from '@/pages/tools/PdfWatermark'
+import PdfCompress from '@/pages/tools/PdfCompress'
+import ConvertPdfToWord from '@/pages/tools/ConvertPdfToWord'
+import ConvertWordToPdf from '@/pages/tools/ConvertWordToPdf'
+import ConvertExcelToPdf from '@/pages/tools/ConvertExcelToPdf'
+import ConvertImageToPdf from '@/pages/tools/ConvertImageToPdf'
+import InvoiceOcr from '@/pages/tools/InvoiceOcr'
+import BatchWatermark from '@/pages/tools/BatchWatermark'
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
+import { useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <ScrollToTop />
+      <div className="min-h-screen flex flex-col bg-navy-50">
+        <Header />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/tools/pdf-merge" element={<PdfMerge />} />
+            <Route path="/tools/pdf-split" element={<PdfSplit />} />
+            <Route path="/tools/pdf-watermark" element={<PdfWatermark />} />
+            <Route path="/tools/pdf-compress" element={<PdfCompress />} />
+            <Route path="/tools/convert-pdf-to-word" element={<ConvertPdfToWord />} />
+            <Route path="/tools/convert-word-to-pdf" element={<ConvertWordToPdf />} />
+            <Route path="/tools/convert-excel-to-pdf" element={<ConvertExcelToPdf />} />
+            <Route path="/tools/convert-image-to-pdf" element={<ConvertImageToPdf />} />
+            <Route path="/tools/invoice-ocr" element={<InvoiceOcr />} />
+            <Route path="/tools/batch-watermark" element={<BatchWatermark />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </BrowserRouter>
+  )
+}
