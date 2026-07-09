@@ -366,6 +366,9 @@ export const useUserStore = create<UserState>()((set, get) => ({
 
     if (fetchError || !profile) return false
 
+    // Protect admin accounts from being overwritten
+    if (profile.plan === 'admin') return false
+
     const baseDate = profile.expiry_date && new Date(profile.expiry_date) > new Date()
       ? new Date(profile.expiry_date)
       : new Date()

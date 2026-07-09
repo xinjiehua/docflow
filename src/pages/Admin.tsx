@@ -47,25 +47,30 @@ export default function Admin() {
   useEffect(() => {
     if (currentUser?.plan === 'admin') {
       setAuthenticated(true)
-    } else if (!authenticated && !loginLoading) {
+      return
+    }
+    if (!authenticated && !loginLoading) {
       const checkAndAuth = async () => {
-        if (preAuth) {
-          // Came from Login.tsx with password pre-verified, auto Supabase login
-          const { error } = await signIn('admin', ADMIN_PASSWORD)
-          if (!error) return // currentUser will update and trigger authenticated
-        }
-        // Fallback: check Supabase session directly
+        // Check if current Supabase session belongs to admin
         const { session } = await supabase.auth.getSession()
         if (session?.user) {
           const profile = await fetchProfile(session.user.id)
           if (profile?.plan === 'admin') {
             setAuthenticated(true)
+            // Also fix zustand state if it was wrong
+            // State will be corrected via onAuthStateChange or reload
+            return
           }
+        }
+        // If came from Login.tsx with password pre-verified, auto Supabase login
+        if (preAuth) {
+          const { error } = await signIn('admin', ADMIN_PASSWORD)
+          if (!error) return
         }
       }
       checkAndAuth()
     }
-  }, [currentUser, currentUser?.plan])
+  }, [currentUser?.plan, authenticated, loginLoading])
 
   const loadData = async () => {
     setLoading(true)
