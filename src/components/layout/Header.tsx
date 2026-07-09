@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { FileText, CreditCard, Menu, X, LogIn, Crown, LogOut, User } from 'lucide-react'
+import { FileText, CreditCard, Menu, X, LogIn, Crown, LogOut, User, Shield } from 'lucide-react'
 import { useState } from 'react'
 import { useUserStore } from '@/stores/user'
 
@@ -119,6 +119,16 @@ export default function Header() {
                         >
                           <Crown className="w-4 h-4" />
                           我的订阅
+                        </Link>
+                      )}
+                      {currentUser.plan === 'admin' && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-navy-600 hover:bg-navy-50 no-underline"
+                        >
+                          <Shield className="w-4 h-4" />
+                          管理后台
                         </Link>
                       )}
                       <hr className="my-1 border-navy-100" />
