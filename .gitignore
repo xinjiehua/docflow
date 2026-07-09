@@ -6,3 +6,6 @@ dist/
 Thumbs.db
 .env
 .env.*
+
+# Local Netlify folder
+.netlify
