@@ -6,6 +6,7 @@ import {
   ChevronRight, Star, Users, Clock, ImageIcon, Crop, RotateCw,
   Hash, PenTool, QrCode, FileUp, Mic, Volume2, FolderOpen, FileSpreadsheet,
   Columns, Type, Eraser, FileCheck, GitCompare, FileSignature, Music,
+  RotateCcw, Paintbrush, FileJson, Binary, Fingerprint, Code2, Palette, Camera, MonitorSpeaker, BarChart3, FileCode, StickyNote,
 } from 'lucide-react'
 
 const toolCategories = [
@@ -24,6 +25,7 @@ const toolCategories = [
       { name: 'PDF 提取页面', desc: '提取或删除PDF指定页面', icon: <Layers className="w-5 h-5" />, href: '/tools/pdf-extract-pages' },
       { name: 'PDF 添加页码', desc: '为PDF每页添加页码', icon: <Hash className="w-5 h-5" />, href: '/tools/pdf-add-page-numbers' },
       { name: 'PDF 转 Excel', desc: '提取PDF文字内容转为Excel表格', icon: <Table className="w-5 h-5" />, href: '/tools/pdf-to-excel' },
+      { name: 'PDF 旋转页面', desc: '旋转PDF指定页面(90/180/270度)', icon: <RotateCcw className="w-5 h-5" />, href: '/tools/pdf-rotate-pages' },
     ],
   },
   {
@@ -40,6 +42,7 @@ const toolCategories = [
       { name: '图片格式转换', desc: 'PNG、JPG、WebP格式互转', icon: <ArrowRightLeft className="w-5 h-5" />, href: '/tools/image-format-convert' },
       { name: '图片压缩', desc: '压缩图片体积，支持批量处理', icon: <FileDown className="w-5 h-5" />, href: '/tools/image-compress' },
       { name: 'Markdown 转 PDF', desc: 'Markdown文档转为PDF文件', icon: <FileText className="w-5 h-5" />, href: '/tools/markdown-to-pdf' },
+      { name: 'HTML 转 PDF', desc: '将HTML内容转为PDF文档', icon: <FileCode className="w-5 h-5" />, href: '/tools/html-to-pdf' },
     ],
   },
   {
@@ -53,6 +56,8 @@ const toolCategories = [
       { name: '图片添加水印', desc: '为图片添加文字水印', icon: <Droplets className="w-5 h-5" />, href: '/tools/image-watermark' },
       { name: '图片去背景', desc: '去除图片背景色，变透明', icon: <Eraser className="w-5 h-5" />, href: '/tools/image-remove-bg' },
       { name: '图片去水印', desc: '框选区域去除图片水印', icon: <Eraser className="w-5 h-5" />, href: '/tools/image-remove-watermark' },
+      { name: '图片拼接', desc: '多张图片拼接为一张(横向/纵向/网格)', icon: <Paintbrush className="w-5 h-5" />, href: '/tools/image-stitch' },
+      { name: '图片EXIF查看', desc: '查看照片拍摄信息和GPS位置', icon: <Camera className="w-5 h-5" />, href: '/tools/image-exif-viewer' },
     ],
   },
   {
@@ -80,6 +85,30 @@ const toolCategories = [
       { name: '音频转文字', desc: '将音频语音转为可编辑文字', icon: <Mic className="w-5 h-5" />, href: '/tools/audio-to-text' },
       { name: '文字转语音', desc: '将文字内容朗读出来', icon: <Volume2 className="w-5 h-5" />, href: '/tools/text-to-speech' },
       { name: '在线表格编辑', desc: '创建编辑表格，导入导出CSV', icon: <FileSpreadsheet className="w-5 h-5" />, href: '/tools/online-spreadsheet' },
+      { name: 'Markdown编辑器', desc: '实时预览，导出HTML/TXT/PDF', icon: <FileCode className="w-5 h-5" />, href: '/tools/markdown-editor' },
+      { name: '屏幕录制', desc: '录制屏幕操作，导出WebM视频', icon: <MonitorSpeaker className="w-5 h-5" />, href: '/tools/screen-recorder' },
+    ],
+  },
+  {
+    title: '开发者工具',
+    description: 'JSON、Base64、正则、哈希、颜色转换',
+    icon: <Code2 className="w-6 h-6" />,
+    gradient: 'from-rose-500 to-pink-600',
+    tools: [
+      { name: 'JSON 格式化', desc: '格式化/压缩/校验/树形查看', icon: <FileJson className="w-5 h-5" />, href: '/tools/json-formatter' },
+      { name: 'Base64 编解码', desc: '文本和图片的Base64编解码', icon: <Binary className="w-5 h-5" />, href: '/tools/base64-tool' },
+      { name: '正则表达式测试', desc: '实时测试正则匹配，常用正则库', icon: <Code2 className="w-5 h-5" />, href: '/tools/regex-tester' },
+      { name: '文件哈希计算', desc: 'MD5/SHA系列哈希值计算与校验', icon: <Fingerprint className="w-5 h-5" />, href: '/tools/file-hash' },
+      { name: '颜色转换器', desc: 'HEX/RGB/HSL/CMYK互转+配色方案', icon: <Palette className="w-5 h-5" />, href: '/tools/color-converter' },
+    ],
+  },
+  {
+    title: '实用小工具',
+    description: '文字统计、图片处理辅助，日常办公好帮手',
+    icon: <StickyNote className="w-6 h-6" />,
+    gradient: 'from-teal-500 to-emerald-600',
+    tools: [
+      { name: '文字统计', desc: '中英文混合文本全面统计分析', icon: <BarChart3 className="w-5 h-5" />, href: '/tools/text-statistics' },
     ],
   },
 ]
@@ -117,7 +146,7 @@ export default function Home() {
 
           <p className="mt-6 text-lg sm:text-xl text-navy-500 max-w-2xl mx-auto leading-relaxed animate-fade-in-up stagger-2">
             PDF处理、格式转换、OCR文字识别、图片编辑 --
-            34+款办公工具，无需安装软件，打开网页即可使用
+            46+款办公工具，无需安装软件，打开网页即可使用
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up stagger-3">

@@ -44,6 +44,19 @@ import AudioToText from '@/pages/tools/AudioToText'
 import BatchRename from '@/pages/tools/BatchRename'
 import TextToSpeech from '@/pages/tools/TextToSpeech'
 import OnlineSpreadsheet from '@/pages/tools/OnlineSpreadsheet'
+// Batch 4: 12 new tools
+import PdfRotatePages from '@/pages/tools/PdfRotatePages'
+import ImageStitch from '@/pages/tools/ImageStitch'
+import HtmlToPdf from '@/pages/tools/HtmlToPdf'
+import JsonFormatter from '@/pages/tools/JsonFormatter'
+import Base64Tool from '@/pages/tools/Base64Tool'
+import FileHash from '@/pages/tools/FileHash'
+import RegexTester from '@/pages/tools/RegexTester'
+import ColorConverter from '@/pages/tools/ColorConverter'
+import ImageExifViewer from '@/pages/tools/ImageExifViewer'
+import MarkdownEditor from '@/pages/tools/MarkdownEditor'
+import ScreenRecorder from '@/pages/tools/ScreenRecorder'
+import TextStatistics from '@/pages/tools/TextStatistics'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -119,6 +132,19 @@ function AppRoutes() {
       <Route path="/tools/audio-to-text" element={<AudioToText />} />
       <Route path="/tools/text-to-speech" element={<TextToSpeech />} />
       <Route path="/tools/online-spreadsheet" element={<OnlineSpreadsheet />} />
+      {/* Batch 4: More Tools */}
+      <Route path="/tools/pdf-rotate-pages" element={<PdfRotatePages />} />
+      <Route path="/tools/image-stitch" element={<ImageStitch />} />
+      <Route path="/tools/html-to-pdf" element={<HtmlToPdf />} />
+      <Route path="/tools/json-formatter" element={<JsonFormatter />} />
+      <Route path="/tools/base64-tool" element={<Base64Tool />} />
+      <Route path="/tools/file-hash" element={<FileHash />} />
+      <Route path="/tools/regex-tester" element={<RegexTester />} />
+      <Route path="/tools/color-converter" element={<ColorConverter />} />
+      <Route path="/tools/image-exif-viewer" element={<ImageExifViewer />} />
+      <Route path="/tools/markdown-editor" element={<MarkdownEditor />} />
+      <Route path="/tools/screen-recorder" element={<ScreenRecorder />} />
+      <Route path="/tools/text-statistics" element={<TextStatistics />} />
     </Routes>
   )
 }
