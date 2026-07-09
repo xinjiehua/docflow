@@ -94,7 +94,7 @@ function PaymentModal({ onClose, selectedPlan }: { onClose: () => void; selected
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
 
-  const { isLoggedIn, currentUser, submitPayment, isPro, activateWithCode } = useUserStore()
+  const { isLoggedIn, currentUser, submitPayment, isPro, activateWithCode, daysRemaining } = useUserStore()
   const wechatId = 'qaz617574493'
 
   const handleCopy = () => {
