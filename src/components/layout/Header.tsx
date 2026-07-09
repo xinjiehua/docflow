@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
-import { FileText, CreditCard, Menu, X, LogIn, Crown, LogOut, User, Shield } from 'lucide-react'
+import { FileText, CreditCard, Menu, X, LogIn, Crown, LogOut, User, Shield, KeyRound } from 'lucide-react'
 import { useState } from 'react'
 import { useUserStore } from '@/stores/user'
+import ChangePasswordModal from '@/components/layout/ChangePasswordModal'
 
 const navLinks = [
   { label: 'PDF工具', href: '/tools/pdf-merge' },
@@ -14,6 +15,7 @@ export default function Header() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [changePwdOpen, setChangePwdOpen] = useState(false)
   const { isLoggedIn, currentUser, signOut, isPro, daysRemaining } = useUserStore()
 
   return (
@@ -25,7 +27,7 @@ export default function Header() {
             <FileText className="w-5 h-5 text-brand-400" />
           </div>
           <span className="font-display font-bold text-xl text-navy-800 tracking-tight">
-            DocFlow
+            智文办公
           </span>
         </Link>
 
@@ -131,6 +133,13 @@ export default function Header() {
                           管理后台
                         </Link>
                       )}
+                      <button
+                        onClick={() => { setUserMenuOpen(false); setChangePwdOpen(true) }}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-navy-600 hover:bg-navy-50 w-full"
+                      >
+                        <KeyRound className="w-4 h-4" />
+                        修改密码
+                      </button>
                       <hr className="my-1 border-navy-100" />
                       <button
                         onClick={() => { signOut(); setUserMenuOpen(false) }}
@@ -207,6 +216,15 @@ export default function Header() {
             </Link>
           )}
         </nav>
+      )}
+
+      {/* Change Password Modal */}
+      {isLoggedIn && currentUser && (
+        <ChangePasswordModal
+          isOpen={changePwdOpen}
+          onClose={() => setChangePwdOpen(false)}
+          phone={currentUser.phone}
+        />
       )}
     </header>
   )

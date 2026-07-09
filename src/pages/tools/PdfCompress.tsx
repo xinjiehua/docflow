@@ -49,8 +49,8 @@ export default function PdfCompress() {
       pdf.setAuthor('')
       pdf.setSubject('')
       pdf.setKeywords([])
-      pdf.setProducer('DocFlow')
-      pdf.setCreator('DocFlow Compressor')
+      pdf.setProducer('ZhiWenOffice')
+      pdf.setCreator('ZhiWenOffice Compressor')
 
       setProgress(80)
 

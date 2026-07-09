@@ -17,7 +17,7 @@ const defaultMd = `# 欢迎使用 Markdown 编辑器
 
 \`\`\`javascript
 function hello() {
-  console.log("Hello, DocFlow!");
+  console.log("Hello!");
 }
 \`\`\`
 
@@ -43,7 +43,7 @@ function hello() {
 
 ---
 
-*由 DocFlow Markdown 编辑器生成*`
+*由 Markdown 编辑器生成*`
 
 export default function MarkdownEditor() {
   const { isPro } = useUserStore()

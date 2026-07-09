@@ -23,7 +23,7 @@ p { line-height: 1.8; }
 </style>
 </head>
 <body>
-<h1>DocFlow 文档示例</h1>
+<h1>文档示例</h1>
 <p>这是一个 <span class="highlight">HTML 转 PDF</span> 的示例文档。</p>
 <h2>功能说明</h2>
 <p>输入任意 HTML 代码，即可将其渲染为 PDF 文件下载。</p>

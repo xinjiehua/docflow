@@ -12,7 +12,7 @@ interface WatermarkResult { name: string; dataUrl: string }
 
 export default function ImageWatermark() {
   const [files, setFiles] = useState<File[]>([])
-  const [text, setText] = useState('DocFlow')
+  const [text, setText] = useState('智文办公')
   const [fontSize, setFontSize] = useState(40)
   const [opacity, setOpacity] = useState(30)
   const [position, setPosition] = useState<'center' | 'bottom-right' | 'tile'>('tile')

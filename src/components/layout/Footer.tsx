@@ -40,7 +40,7 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center">
                 <FileText className="w-4 h-4 text-brand-400" />
               </div>
-              <span className="font-display font-bold text-lg">DocFlow</span>
+              <span className="font-display font-bold text-lg">智文办公</span>
             </div>
             <p className="text-navy-400 text-sm leading-relaxed">
               一站式在线文档处理工具，所有处理在浏览器本地完成，保护你的文件隐私。
@@ -71,7 +71,7 @@ export default function Footer() {
 
         <div className="border-t border-navy-700 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-navy-500 text-xs">
-            2025 DocFlow. All files are processed locally in your browser.
+            2025 智文办公. All files are processed locally in your browser.
           </p>
           <p className="text-navy-500 text-xs">
             Your files never leave your device.

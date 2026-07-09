@@ -130,7 +130,7 @@ export default function Login() {
           <p className="text-navy-500 mt-2 text-sm">
             {mode === 'login'
               ? '登录后可使用专业版功能，查看到期时间'
-              : '注册账号，开始使用 DocFlow 文档工具'}
+              : '注册账号，开始使用 智文办公 文档工具'}
           </p>
         </div>
 

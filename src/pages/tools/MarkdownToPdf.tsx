@@ -9,7 +9,7 @@ import { useUsageStore } from '@/stores/usage'
 import { useUserStore } from '@/stores/user'
 
 export default function MarkdownToPdf() {
-  const [md, setMd] = useState('# 欢迎使用 DocFlow Markdown 转 PDF\n\n输入你的 Markdown 内容...\n\n## 功能特点\n\n- 支持标题、列表、粗体、斜体\n- 支持代码块\n- 支持链接和图片\n\n### 示例\n\n**粗体文字** 和 *斜体文字*\n\n```\ncode block\n```\n\n| 表头1 | 表头2 |\n|------|------|\n| 内容1 | 内容2 |\n')
+  const [md, setMd] = useState('# 欢迎使用 Markdown 转 PDF\n\n输入你的 Markdown 内容...\n\n## 功能特点\n\n- 支持标题、列表、粗体、斜体\n- 支持代码块\n- 支持链接和图片\n\n### 示例\n\n**粗体文字** 和 *斜体文字*\n\n```\ncode block\n```\n\n| 表头1 | 表头2 |\n|------|------|\n| 内容1 | 内容2 |\n')
   const [previewHtml, setPreviewHtml] = useState('')
   const [status, setStatus] = useState<'idle' | 'processing' | 'done' | 'error'>('idle')
   const [progress, setProgress] = useState(0)
