@@ -158,26 +158,7 @@ function PaymentModal({ onClose, selectedPlan }: { onClose: () => void; selected
     )
   }
 
-  // Already pro
-  if (isPro()) {
-    const days = daysRemaining()
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-        <div className="relative bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-fade-in-up p-8 text-center">
-          <Crown className="w-12 h-12 text-brand-500 mx-auto mb-4" />
-          <h2 className="text-xl font-display font-bold text-navy-800">你已是专业版用户</h2>
-          <p className="text-sm text-navy-500 mt-2">
-            专业版剩余 <span className="font-bold text-brand-600">{days}</span> 天
-          </p>
-          <p className="text-xs text-navy-400 mt-1">
-            到期时间: {currentUser?.expiry_date ? new Date(currentUser.expiry_date).toLocaleDateString('zh-CN') : '-'}
-          </p>
-          <button onClick={onClose} className="btn-primary mt-6">好的</button>
-        </div>
-      </div>
-    )
-  }
+  const renewing = isPro()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -189,8 +170,13 @@ function PaymentModal({ onClose, selectedPlan }: { onClose: () => void; selected
         {/* Header */}
         <div className="bg-gradient-to-r from-brand-500 to-cyan-500 p-6 text-white text-center">
           <Crown className="w-10 h-10 mx-auto mb-2" />
-          <h2 className="text-xl font-display font-bold">升级到专业版</h2>
+          <h2 className="text-xl font-display font-bold">{renewing ? '续费专业版' : '升级到专业版'}</h2>
           <p className="text-sm opacity-90 mt-1">{selectedPlan.name} · {selectedPlan.duration}天 · ¥{selectedPlan.price}</p>
+          {renewing && (
+            <p className="text-xs opacity-75 mt-1">
+              当前剩余 {daysRemaining()} 天，续费后将叠加天数
+            </p>
+          )}
         </div>
 
         {/* Steps */}
