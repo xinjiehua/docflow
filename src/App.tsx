@@ -1,8 +1,11 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import Home from '@/pages/Home'
 import Pricing from '@/pages/Pricing'
+import Login from '@/pages/Login'
+import Admin from '@/pages/Admin'
 import PdfMerge from '@/pages/tools/PdfMerge'
 import PdfSplit from '@/pages/tools/PdfSplit'
 import PdfWatermark from '@/pages/tools/PdfWatermark'
@@ -22,9 +25,6 @@ function ScrollToTop() {
   return null
 }
 
-import { useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -35,6 +35,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/tools/pdf-merge" element={<PdfMerge />} />
             <Route path="/tools/pdf-split" element={<PdfSplit />} />
             <Route path="/tools/pdf-watermark" element={<PdfWatermark />} />

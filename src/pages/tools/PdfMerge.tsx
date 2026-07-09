@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Merge } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Merge, Lock } from 'lucide-react'
 import ToolLayout from '@/components/tools/ToolLayout'
 import FileUploader from '@/components/tools/FileUploader'
 import ProcessingIndicator from '@/components/tools/ProcessingIndicator'
 import { mergePDFs } from '@/utils/pdf'
 import { downloadUint8Array } from '@/utils/download'
 import { useUsageStore } from '@/stores/usage'
+import { useUserStore } from '@/stores/user'
 
 export default function PdfMerge() {
   const [files, setFiles] = useState<File[]>([])
@@ -14,7 +16,8 @@ export default function PdfMerge() {
   const [result, setResult] = useState<Uint8Array | null>(null)
 
   const { totalUsed, increment } = useUsageStore()
-  const isFreeLimitReached = totalUsed >= 5
+  const { isPro } = useUserStore()
+  const isFreeLimitReached = !isPro() && totalUsed >= 5
 
   const handleFilesSelected = (newFiles: File[]) => {
     setFiles((prev) => [...prev, ...newFiles])
@@ -41,7 +44,7 @@ export default function PdfMerge() {
       setResult(merged)
       setProgress(100)
       setStatus('done')
-      increment('pdfMergeCount')
+      if (!isPro()) increment('pdfMergeCount')
     } catch {
       setStatus('error')
     }
@@ -63,9 +66,9 @@ export default function PdfMerge() {
         <FileUploader
           accept=".pdf"
           multiple
-          maxSize={10}
+          maxSize={isPro() ? 100 : 10}
           label="选择PDF文件"
-          description="支持选择多个PDF文件进行合并"
+          description={`支持选择多个PDF文件进行合并（单个文件最大${isPro() ? '100MB' : '10MB'}）`}
           onFilesSelected={handleFilesSelected}
           files={files}
           onRemoveFile={handleRemoveFile}
@@ -73,9 +76,15 @@ export default function PdfMerge() {
 
         {isFreeLimitReached && files.length >= 2 && (
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
-            <p className="text-sm text-amber-700">
-              免费版每日限用5次。升级到<a href="/pricing" className="underline font-medium">专业版</a>可无限使用。
-            </p>
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-amber-500 shrink-0" />
+              <p className="text-sm text-amber-700">
+                免费版每日限用5次（已用{totalUsed}次）。
+                <Link to="/login" className="underline font-medium text-brand-600 ml-1">登录</Link>或
+                <Link to="/pricing" className="underline font-medium text-brand-600 ml-1">升级专业版</Link>
+                可无限使用。
+              </p>
+            </div>
           </div>
         )}
 

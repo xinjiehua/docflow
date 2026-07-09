@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom'
-import { Check, X, Zap, Crown } from 'lucide-react'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Check, X, Zap, Crown, QrCode, MessageCircle, Copy, ClipboardCheck, LogIn, Key, Clock } from 'lucide-react'
+import { useUserStore } from '@/stores/user'
 
 const plans = [
   {
@@ -40,15 +42,358 @@ const plans = [
       { text: '无水印导出', included: true },
       { text: '优先客服支持', included: true },
     ],
-    cta: '立即升级',
-    ctaHref: '#',
+    cta: '扫码升级',
     ctaClass: 'btn-primary w-full',
+    ctaAction: 'pay',
   },
 ]
 
+function PaymentModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState(1)
+  const [copied, setCopied] = useState(false)
+  const [transactionId, setTransactionId] = useState('')
+  const [activationCode, setActivationCode] = useState('')
+  const [activateStatus, setActivateStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const navigate = useNavigate()
+
+  const { isLoggedIn, currentUser, submitPayment, isPro, payments } = useUserStore()
+  const wechatId = 'X617574493'
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(wechatId)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleSubmitTransaction = () => {
+    if (!transactionId.trim()) return
+    try {
+      submitPayment(transactionId.trim())
+      setSubmitStatus('success')
+      setStep(2)
+    } catch {
+      setSubmitStatus('error')
+    }
+  }
+
+  const handleActivate = () => {
+    if (!activationCode.trim()) return
+
+    // Check if the code matches any verified payment
+    const userPayments = payments.filter(
+      (p) => p.userId === currentUser?.id && p.status === 'verified' && p.activationCode === activationCode.trim().toUpperCase()
+    )
+
+    if (userPayments.length > 0) {
+      const store = useUserStore.getState()
+      store.upgradeUser(currentUser!.id, 30)
+      setActivateStatus('success')
+    } else {
+      setActivateStatus('error')
+    }
+  }
+
+  // Redirect to login if not logged in
+  if (!isLoggedIn) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+        <div className="relative bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-fade-in-up p-8 text-center">
+          <LogIn className="w-12 h-12 text-navy-300 mx-auto mb-4" />
+          <h2 className="text-xl font-display font-bold text-navy-800">请先登录</h2>
+          <p className="text-sm text-navy-500 mt-2">升级专业版需要先登录账号</p>
+          <div className="flex gap-3 mt-6">
+            <button onClick={onClose} className="btn-secondary flex-1">返回</button>
+            <button onClick={() => { onClose(); navigate('/login') }} className="btn-primary flex-1">去登录</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Already pro
+  if (isPro()) {
+    const days = useUserStore.getState().daysRemaining()
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+        <div className="relative bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-fade-in-up p-8 text-center">
+          <Crown className="w-12 h-12 text-brand-500 mx-auto mb-4" />
+          <h2 className="text-xl font-display font-bold text-navy-800">你已是专业版用户</h2>
+          <p className="text-sm text-navy-500 mt-2">
+            专业版剩余 <span className="font-bold text-brand-600">{days}</span> 天
+          </p>
+          <p className="text-xs text-navy-400 mt-1">
+            到期时间: {currentUser?.expiryDate ? new Date(currentUser.expiryDate).toLocaleDateString('zh-CN') : '-'}
+          </p>
+          <button onClick={onClose} className="btn-primary mt-6">好的</button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-fade-in-up">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-brand-500 to-cyan-500 p-6 text-white text-center">
+          <Crown className="w-10 h-10 mx-auto mb-2" />
+          <h2 className="text-xl font-display font-bold">升级到专业版</h2>
+          <p className="text-sm opacity-90 mt-1">29 元 / 月 - 无限次处理</p>
+        </div>
+
+        {/* Steps */}
+        <div className="p-6">
+          {/* Step indicators */}
+          <div className="flex items-center justify-center gap-3 mb-6">
+            {[1, 2, 3].map((s) => (
+              <div key={s} className="flex items-center gap-2">
+                <button
+                  onClick={() => setStep(s)}
+                  className={`w-8 h-8 rounded-full text-sm font-medium transition-all ${
+                    step === s
+                      ? 'bg-brand-500 text-white scale-110'
+                      : step > s
+                      ? 'bg-brand-100 text-brand-700'
+                      : 'bg-navy-100 text-navy-400'
+                  }`}
+                >
+                  {step > s ? <Check className="w-4 h-4 mx-auto" /> : s}
+                </button>
+                {s < 3 && <div className={`w-8 h-0.5 ${step > s ? 'bg-brand-300' : 'bg-navy-200'}`} />}
+              </div>
+            ))}
+          </div>
+
+          {/* Step 1: QR Code + Submit Transaction */}
+          {step === 1 && (
+            <div className="text-center">
+              <h3 className="font-medium text-navy-700 mb-3">第一步：扫码支付</h3>
+              <p className="text-sm text-navy-500 mb-4">
+                打开微信，扫描下方收款码支付 <span className="font-bold text-brand-600">29 元</span>
+              </p>
+              <div className="inline-block p-3 bg-white rounded-2xl border-2 border-navy-100 shadow-md">
+                <img
+                  src="/wechat-pay.jpg"
+                  alt="微信收款码"
+                  className="w-48 h-48 rounded-xl"
+                />
+              </div>
+
+              {/* Transaction ID input */}
+              <div className="mt-5">
+                <label className="block text-sm font-medium text-navy-700 mb-1.5 text-left">
+                  支付交易号（微信支付后可见）
+                </label>
+                <input
+                  type="text"
+                  value={transactionId}
+                  onChange={(e) => setTransactionId(e.target.value)}
+                  placeholder="请输入微信支付交易号"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-navy-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+
+              {submitStatus === 'success' && (
+                <div className="mt-3 p-3 rounded-xl bg-brand-50 border border-brand-200">
+                  <p className="text-sm text-brand-700">
+                    付款凭证已提交成功！请联系客服获取激活码
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                <p className="text-xs text-amber-600">
+                  <strong>提示：</strong>支付完成后，请将交易号记录好。添加客服微信 X617574493 发送交易号，客服审核后会自动生成激活码。
+                </p>
+              </div>
+
+              <button
+                onClick={handleSubmitTransaction}
+                disabled={!transactionId.trim()}
+                className="btn-primary mt-4 !px-8 disabled:opacity-50"
+              >
+                提交付款凭证
+              </button>
+
+              {submitStatus === 'success' && (
+                <button
+                  onClick={() => setStep(2)}
+                  className="btn-secondary mt-3 !px-8 text-sm"
+                >
+                  已联系客服，输入激活码 &rarr;
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Step 2: Contact + Code Input */}
+          {step === 2 && (
+            <div className="text-center">
+              <h3 className="font-medium text-navy-700 mb-3">第二步：输入激活码</h3>
+              <p className="text-sm text-navy-500 mb-4">
+                客服审核通过后会给你一个激活码，输入即可开通
+              </p>
+
+              <div className="flex flex-col items-center gap-4 p-5 bg-brand-50 rounded-2xl mb-5">
+                <div className="w-16 h-16 rounded-2xl bg-brand-100 flex items-center justify-center">
+                  <MessageCircle className="w-8 h-8 text-brand-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-navy-400">客服微信号</p>
+                  <p className="text-xl font-display font-bold text-navy-800 mt-1">{wechatId}</p>
+                </div>
+                <button
+                  onClick={handleCopy}
+                  className="btn-secondary !px-6 text-sm"
+                >
+                  {copied ? (
+                    <><ClipboardCheck className="w-4 h-4 mr-1.5 text-brand-500" />已复制</>
+                  ) : (
+                    <><Copy className="w-4 h-4 mr-1.5" />复制微信号</>
+                  )}
+                </button>
+              </div>
+
+              <input
+                type="text"
+                value={activationCode}
+                onChange={(e) => {
+                  setActivationCode(e.target.value.toUpperCase())
+                  setActivateStatus('idle')
+                }}
+                placeholder="请输入激活码（如 DF-ABC123）"
+                className="w-full px-4 py-3 rounded-xl border-2 border-navy-200 text-center text-lg tracking-widest focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              />
+
+              {activateStatus === 'success' && (
+                <div className="mt-3 p-4 rounded-xl bg-brand-50 border border-brand-200">
+                  <Crown className="w-8 h-8 text-brand-600 mx-auto mb-2" />
+                  <p className="text-brand-700 font-medium">激活成功！</p>
+                  <p className="text-brand-600 text-sm mt-1">你已升级为专业版，可无限使用所有工具</p>
+                  <button
+                    onClick={() => { onClose(); navigate('/') }}
+                    className="btn-primary mt-3"
+                  >
+                    开始使用
+                  </button>
+                </div>
+              )}
+
+              {activateStatus === 'error' && (
+                <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200">
+                  <p className="text-sm text-red-600">激活码无效，请检查后重试</p>
+                </div>
+              )}
+
+              {activateStatus === 'idle' && (
+                <button
+                  onClick={handleActivate}
+                  disabled={!activationCode.trim()}
+                  className="btn-primary w-full mt-4 !py-3 text-base disabled:opacity-50"
+                >
+                  <Key className="w-4 h-4 mr-2" />
+                  激活专业版
+                </button>
+              )}
+
+              <div className="mt-4 p-3 bg-navy-50 rounded-xl">
+                <p className="text-xs text-navy-500">
+                  <Clock className="w-3.5 h-3.5 inline mr-1" />
+                  没有激活码？请添加客服微信，发送你的付款交易号，审核通过后会给你激活码
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Done info */}
+          {step === 3 && (
+            <div className="text-center">
+              <h3 className="font-medium text-navy-700 mb-3">升级完成</h3>
+              <div className="p-6 rounded-2xl bg-brand-50 border border-brand-200">
+                <Crown className="w-10 h-10 text-brand-600 mx-auto mb-3" />
+                <p className="text-brand-700 font-medium">专业版已激活</p>
+                <p className="text-brand-600 text-sm mt-1">
+                  可无限使用所有文档处理工具
+                </p>
+              </div>
+              <button
+                onClick={() => { onClose(); navigate('/') }}
+                className="btn-primary mt-4 !px-8"
+              >
+                开始使用
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors text-sm"
+        >
+          X
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function Pricing() {
+  const [showPayModal, setShowPayModal] = useState(false)
+  const { isLoggedIn, isPro, currentUser, daysRemaining } = useUserStore()
+
+  const handlePlanAction = (plan: typeof plans[number]) => {
+    if ('ctaAction' in plan && plan.ctaAction === 'pay') {
+      setShowPayModal(true)
+    }
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+      {/* User status banner */}
+      {isLoggedIn && currentUser && (
+        <div className={`mb-8 p-4 rounded-2xl border ${
+          isPro()
+            ? 'bg-brand-50 border-brand-200'
+            : 'bg-navy-50 border-navy-200'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                isPro()
+                  ? 'bg-gradient-to-br from-brand-400 to-cyan-500'
+                  : 'bg-navy-200'
+              }`}>
+                <Crown className={`w-5 h-5 ${isPro() ? 'text-white' : 'text-navy-400'}`} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-navy-800">
+                  {currentUser.phone}
+                  <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                    isPro() ? 'bg-brand-100 text-brand-700' : 'bg-navy-100 text-navy-400'
+                  }`}>
+                    {isPro() ? '专业版' : '免费版'}
+                  </span>
+                </p>
+                {isPro() ? (
+                  <p className="text-xs text-brand-600">
+                    到期时间: {new Date(currentUser.expiryDate!).toLocaleDateString('zh-CN')} · 剩余 {daysRemaining()} 天
+                  </p>
+                ) : (
+                  <p className="text-xs text-navy-400">升级专业版享受无限次处理</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-3xl sm:text-4xl font-display font-bold text-navy-800">
@@ -123,11 +468,57 @@ export default function Pricing() {
               ))}
             </ul>
 
-            <Link to={plan.ctaHref} className={`${plan.ctaClass} no-underline`}>
-              {plan.cta}
-            </Link>
+            {'ctaAction' in plan ? (
+              <button
+                onClick={() => handlePlanAction(plan)}
+                className={plan.ctaClass}
+              >
+                <QrCode className="w-5 h-5 mr-2" />
+                {plan.cta}
+              </button>
+            ) : (
+              <Link to={plan.ctaHref} className={`${plan.ctaClass} no-underline`}>
+                {plan.cta}
+              </Link>
+            )}
           </div>
         ))}
+      </div>
+
+      {/* Payment Flow */}
+      <div className="mt-12 max-w-2xl mx-auto">
+        <div className="card !p-6 sm:!p-8">
+          <h2 className="text-lg font-display font-bold text-navy-800 text-center mb-6">
+            升级流程
+          </h2>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+            {[
+              { num: '1', title: '注册登录', desc: '手机号注册账号' },
+              { num: '2', title: '扫码支付', desc: '微信扫码29元' },
+              { num: '3', title: '输入激活码', desc: '客服审核后自动开通' },
+            ].map((item, idx) => (
+              <div key={item.num} className="flex flex-col items-center text-center flex-1">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-400 to-cyan-500 flex items-center justify-center text-white font-bold text-lg mb-3">
+                  {item.num}
+                </div>
+                <h3 className="font-medium text-navy-700 text-sm">{item.title}</h3>
+                <p className="text-xs text-navy-400 mt-1">{item.desc}</p>
+                {idx < 2 && (
+                  <div className="hidden sm:block text-navy-300 mt-[-40px] ml-[60px]">&rarr;</div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setShowPayModal(true)}
+              className="btn-primary"
+            >
+              <QrCode className="w-4 h-4 mr-2" />
+              立即升级专业版
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* FAQ */}
@@ -146,12 +537,20 @@ export default function Pricing() {
               a: '所有文件处理都在你的浏览器中本地完成，不会上传到任何服务器。关闭网页后数据自动清除。',
             },
             {
-              q: '可以随时取消订阅吗?',
-              a: '当然可以。专业版按月订阅，随时可以取消，取消后当前月仍可继续使用。',
+              q: '如何升级到专业版?',
+              a: '先注册/登录账号，然后点击"立即升级"，扫码支付后输入交易号，联系客服获取激活码即可开通。',
             },
             {
-              q: '支持哪些文件格式?',
-              a: '支持PDF、Word(.docx)、Excel(.xlsx)、JPG、PNG等常见格式。',
+              q: '如何查看我的账号到期时间?',
+              a: '登录后，页面顶部会显示你的套餐状态和剩余天数。点击用户头像可查看详细信息。',
+            },
+            {
+              q: '可以随时取消订阅吗?',
+              a: '当然可以。专业版按月订阅，到期后自动回到免费版。如需退款请联系客服。',
+            },
+            {
+              q: '支付后多久能开通?',
+              a: '联系客服后审核通过立即生成激活码，输入激活码即可开通。工作时间通常几分钟内完成。',
             },
           ].map((item) => (
             <div key={item.q} className="card !p-5">
@@ -163,6 +562,9 @@ export default function Pricing() {
           ))}
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPayModal && <PaymentModal onClose={() => setShowPayModal(false)} />}
     </div>
   )
 }

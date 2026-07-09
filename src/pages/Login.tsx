@@ -1,0 +1,231 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { LogIn, UserPlus, Shield, Eye, EyeOff } from 'lucide-react'
+import { useUserStore } from '@/stores/user'
+
+export default function Login() {
+  const navigate = useNavigate()
+  const { login, isLoggedIn, currentUser } = useUserStore()
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [adminMode, setAdminMode] = useState(false)
+  const [adminPassword, setAdminPassword] = useState('')
+
+  // Admin password - user can change this
+  const ADMIN_PASSWORD = 'docflow2024'
+
+  // If already logged in, redirect
+  if (isLoggedIn && currentUser) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-20 text-center">
+        <div className="card !p-8">
+          <div className="w-16 h-16 rounded-2xl bg-brand-100 flex items-center justify-center mx-auto mb-4">
+            <UserPlus className="w-8 h-8 text-brand-600" />
+          </div>
+          <h2 className="text-xl font-display font-bold text-navy-800">你已登录</h2>
+          <p className="text-navy-500 mt-2">
+            手机号：<span className="font-medium">{currentUser.phone}</span>
+          </p>
+          <p className="text-navy-500 mt-1">
+            当前套餐：
+            <span className={`font-medium ${currentUser.plan === 'pro' ? 'text-brand-600' : 'text-navy-400'}`}>
+              {currentUser.plan === 'pro' ? '专业版' : '免费版'}
+            </span>
+          </p>
+          {currentUser.expiryDate && (
+            <p className="text-navy-500 mt-1">
+              到期时间：<span className="font-medium">{new Date(currentUser.expiryDate).toLocaleDateString('zh-CN')}</span>
+            </p>
+          )}
+          <div className="flex gap-3 mt-6">
+            <button onClick={() => navigate('/pricing')} className="btn-primary flex-1">
+              前往定价页
+            </button>
+            <button
+              onClick={() => useUserStore.getState().logout()}
+              className="btn-secondary flex-1"
+            >
+              退出登录
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    if (adminMode) {
+      // Admin login
+      if (adminPassword === ADMIN_PASSWORD) {
+        navigate('/admin')
+        return
+      }
+      setError('管理员密码错误')
+      return
+    }
+
+    // Validate phone
+    const phoneRegex = /^1[3-9]\d{9}$/
+    if (!phoneRegex.test(phone)) {
+      setError('请输入正确的11位手机号')
+      return
+    }
+
+    if (!password || password.length < 4) {
+      setError('请输入至少4位密码')
+      return
+    }
+
+    setLoading(true)
+
+    // Simulate network delay
+    setTimeout(() => {
+      try {
+        const user = login(phone)
+        // In a real app, we'd verify the password hash
+        // For now, just store it
+        localStorage.setItem(`docflow-pwd-${phone}`, password)
+        setLoading(false)
+        navigate('/pricing')
+      } catch {
+        setError('登录失败，请重试')
+        setLoading(false)
+      }
+    }, 500)
+  }
+
+  const toggleMode = () => {
+    setMode(mode === 'login' ? 'register' : 'login')
+    setError('')
+  }
+
+  return (
+    <div className="max-w-md mx-auto px-4 py-12">
+      {/* Login Card */}
+      <div className="card !p-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-navy-700 to-brand-600 flex items-center justify-center mx-auto mb-4">
+            {mode === 'login' ? (
+              <LogIn className="w-8 h-8 text-white" />
+            ) : (
+              <UserPlus className="w-8 h-8 text-white" />
+            )}
+          </div>
+          <h1 className="text-2xl font-display font-bold text-navy-800">
+            {mode === 'login' ? '登录账号' : '注册账号'}
+          </h1>
+          <p className="text-navy-500 mt-2 text-sm">
+            {mode === 'login'
+              ? '登录后可使用专业版功能，查看到期时间'
+              : '注册账号，开始使用 DocFlow 文档工具'}
+          </p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-navy-700 mb-1.5">
+              手机号
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="请输入11位手机号"
+              className="w-full px-4 py-3 rounded-xl border-2 border-navy-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-navy-700 mb-1.5">
+              密码
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="请输入密码（至少4位）"
+                className="w-full px-4 py-3 rounded-xl border-2 border-navy-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-all pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-navy-400 hover:text-navy-600"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary w-full !py-3 text-base disabled:opacity-50"
+          >
+            {loading ? '请稍候...' : mode === 'login' ? '登录' : '注册并登录'}
+          </button>
+        </form>
+
+        {/* Toggle */}
+        <div className="mt-4 text-center">
+          <button
+            onClick={toggleMode}
+            className="text-sm text-brand-600 hover:text-brand-700 font-medium"
+          >
+            {mode === 'login' ? '没有账号？点击注册' : '已有账号？点击登录'}
+          </button>
+        </div>
+      </div>
+
+      {/* Admin Entry */}
+      <div className="mt-6 card !p-5">
+        <button
+          onClick={() => setAdminMode(!adminMode)}
+          className="w-full flex items-center gap-3 text-left"
+        >
+          <Shield className="w-5 h-5 text-navy-400" />
+          <span className="text-sm text-navy-500">管理员入口</span>
+        </button>
+
+        {adminMode && (
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+            <input
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="管理员密码"
+              className="w-full px-4 py-3 rounded-xl border-2 border-navy-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-all"
+            />
+            <button type="submit" className="btn-secondary w-full !py-2.5 text-sm">
+              进入管理后台
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Note */}
+      <div className="mt-4 p-4 rounded-xl bg-brand-50 border border-brand-100">
+        <p className="text-xs text-brand-600">
+          <strong>隐私说明：</strong>所有数据仅存储在你的浏览器本地，不会上传到任何服务器。
+          手机号仅用于登录标识，我们不会收集或分享你的个人信息。
+        </p>
+      </div>
+    </div>
+  )
+}

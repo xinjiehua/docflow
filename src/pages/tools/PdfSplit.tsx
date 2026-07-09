@@ -1,11 +1,15 @@
 import { useState } from 'react'
-import { Scissors } from 'lucide-react'
+import {Scissors} from 'lucide-react'
+import { Link } from 'react-router-dom'
+
 import ToolLayout from '@/components/tools/ToolLayout'
 import FileUploader from '@/components/tools/FileUploader'
 import ProcessingIndicator from '@/components/tools/ProcessingIndicator'
 import { splitPDF, getPDFPageCount } from '@/utils/pdf'
 import { downloadAsZip } from '@/utils/download'
 import { useUsageStore } from '@/stores/usage'
+import { useUserStore } from '@/stores/user'
+
 
 export default function PdfSplit() {
   const [file, setFile] = useState<File | null>(null)
@@ -16,7 +20,8 @@ export default function PdfSplit() {
   const [results, setResults] = useState<Uint8Array[]>([])
 
   const { totalUsed, increment } = useUsageStore()
-  const isFreeLimitReached = totalUsed >= 5
+  const { isPro } = useUserStore()
+  const isFreeLimitReached = !isPro() && totalUsed >= 5
 
   const handleFileSelected = async (files: File[]) => {
     const selected = files[0]
@@ -46,7 +51,7 @@ export default function PdfSplit() {
       setResults(result)
       setProgress(100)
       setStatus('done')
-      increment('pdfSplitCount')
+      if (!isPro()) increment('pdfSplitCount')
     } catch {
       setStatus('error')
     }
@@ -71,7 +76,7 @@ export default function PdfSplit() {
       <div className="space-y-6">
         <FileUploader
           accept=".pdf"
-          maxSize={10}
+          maxSize={isPro() ? 100 : 10}
           label="选择PDF文件"
           description="选择要拆分的PDF文件"
           onFilesSelected={handleFileSelected}
@@ -112,7 +117,7 @@ export default function PdfSplit() {
         {isFreeLimitReached && file && (
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
             <p className="text-sm text-amber-700">
-              免费版每日限用5次。升级到<a href="/pricing" className="underline font-medium">专业版</a>可无限使用。
+              免费版每日限用5次。升级到<Link to="/login" className="underline font-medium text-brand-600 ml-1">登录</Link>或<Link to="/pricing" className="underline font-medium text-brand-600 ml-1">升级专业版</Link>可无限使用。
             </p>
           </div>
         )}

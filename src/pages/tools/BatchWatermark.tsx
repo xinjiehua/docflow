@@ -1,11 +1,15 @@
 import { useState } from 'react'
-import { Layers } from 'lucide-react'
+import {Layers} from 'lucide-react'
+import { Link } from 'react-router-dom'
+
 import ToolLayout from '@/components/tools/ToolLayout'
 import FileUploader from '@/components/tools/FileUploader'
 import ProcessingIndicator from '@/components/tools/ProcessingIndicator'
 import { addWatermark } from '@/utils/pdf'
 import { downloadAsZip } from '@/utils/download'
 import { useUsageStore } from '@/stores/usage'
+import { useUserStore } from '@/stores/user'
+
 
 export default function BatchWatermark() {
   const [files, setFiles] = useState<File[]>([])
@@ -16,7 +20,8 @@ export default function BatchWatermark() {
   const [results, setResults] = useState<Uint8Array[]>([])
 
   const { totalUsed, increment } = useUsageStore()
-  const isFreeLimitReached = totalUsed >= 5
+  const { isPro } = useUserStore()
+  const isFreeLimitReached = !isPro() && totalUsed >= 5
 
   const handleFilesSelected = (newFiles: File[]) => {
     setFiles(newFiles)
@@ -43,7 +48,7 @@ export default function BatchWatermark() {
       setResults(newResults)
       setProgress(100)
       setStatus('done')
-      increment('batchCount')
+      if (!isPro()) increment('batchCount')
     } catch {
       setStatus('error')
     }
@@ -68,7 +73,7 @@ export default function BatchWatermark() {
         <FileUploader
           accept=".pdf"
           multiple
-          maxSize={10}
+          maxSize={isPro() ? 100 : 10}
           label="选择多个PDF文件"
           description="支持批量选择，为每个文件添加相同水印"
           onFilesSelected={handleFilesSelected}
@@ -115,7 +120,7 @@ export default function BatchWatermark() {
         {isFreeLimitReached && files.length > 0 && (
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
             <p className="text-sm text-amber-700">
-              免费版每日限用5次。升级到<a href="/pricing" className="underline font-medium">专业版</a>可无限使用。
+              免费版每日限用5次。升级到<Link to="/login" className="underline font-medium text-brand-600 ml-1">登录</Link>或<Link to="/pricing" className="underline font-medium text-brand-600 ml-1">升级专业版</Link>可无限使用。
             </p>
           </div>
         )}

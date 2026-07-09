@@ -1,10 +1,14 @@
 import { useState } from 'react'
-import { ScanLine, Copy, CheckCircle2 } from 'lucide-react'
+import {ScanLine, Copy, CheckCircle2} from 'lucide-react'
+import { Link } from 'react-router-dom'
+
 import ToolLayout from '@/components/tools/ToolLayout'
 import FileUploader from '@/components/tools/FileUploader'
 import ProcessingIndicator from '@/components/tools/ProcessingIndicator'
 import { recognizeText, parseInvoiceFields } from '@/utils/ocr'
 import { useUsageStore } from '@/stores/usage'
+import { useUserStore } from '@/stores/user'
+
 
 const fieldLabels: Record<string, string> = {
   invoiceNumber: '发票号码',
@@ -28,7 +32,8 @@ export default function InvoiceOcr() {
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
   const { totalUsed, increment } = useUsageStore()
-  const isFreeLimitReached = totalUsed >= 5
+  const { isPro } = useUserStore()
+  const isFreeLimitReached = !isPro() && totalUsed >= 5
 
   const handleFileSelected = (files: File[]) => {
     setFile(files[0])
@@ -54,7 +59,7 @@ export default function InvoiceOcr() {
       setFields(parsed)
       setProgress(100)
       setStatus('done')
-      increment('ocrCount')
+      if (!isPro()) increment('ocrCount')
     } catch {
       setStatus('error')
     }
@@ -78,7 +83,7 @@ export default function InvoiceOcr() {
       <div className="space-y-6">
         <FileUploader
           accept=".jpg,.jpeg,.png,.bmp,.webp"
-          maxSize={10}
+          maxSize={isPro() ? 100 : 10}
           label="上传发票图片"
           description="支持JPG、PNG等常见图片格式"
           onFilesSelected={handleFileSelected}
@@ -96,7 +101,7 @@ export default function InvoiceOcr() {
         {isFreeLimitReached && file && (
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
             <p className="text-sm text-amber-700">
-              免费版每日限用5次。升级到<a href="/pricing" className="underline font-medium">专业版</a>可无限使用。
+              免费版每日限用5次。升级到<Link to="/login" className="underline font-medium text-brand-600 ml-1">登录</Link>或<Link to="/pricing" className="underline font-medium text-brand-600 ml-1">升级专业版</Link>可无限使用。
             </p>
           </div>
         )}

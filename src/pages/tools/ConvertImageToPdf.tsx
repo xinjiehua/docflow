@@ -1,11 +1,15 @@
 import { useState } from 'react'
-import { Image } from 'lucide-react'
+import {Image} from 'lucide-react'
+import { Link } from 'react-router-dom'
+
 import ToolLayout from '@/components/tools/ToolLayout'
 import FileUploader from '@/components/tools/FileUploader'
 import ProcessingIndicator from '@/components/tools/ProcessingIndicator'
 import { imagesToPdf } from '@/utils/converter'
 import { downloadUint8Array } from '@/utils/download'
 import { useUsageStore } from '@/stores/usage'
+import { useUserStore } from '@/stores/user'
+
 
 export default function ConvertImageToPdf() {
   const [files, setFiles] = useState<File[]>([])
@@ -14,7 +18,8 @@ export default function ConvertImageToPdf() {
   const [result, setResult] = useState<Uint8Array | null>(null)
 
   const { totalUsed, increment } = useUsageStore()
-  const isFreeLimitReached = totalUsed >= 5
+  const { isPro } = useUserStore()
+  const isFreeLimitReached = !isPro() && totalUsed >= 5
 
   const handleFilesSelected = (newFiles: File[]) => {
     setFiles(newFiles)
@@ -34,7 +39,7 @@ export default function ConvertImageToPdf() {
       setResult(pdfData)
       setProgress(100)
       setStatus('done')
-      increment('convertCount')
+      if (!isPro()) increment('convertCount')
     } catch {
       setStatus('error')
     }
@@ -56,7 +61,7 @@ export default function ConvertImageToPdf() {
         <FileUploader
           accept=".jpg,.jpeg,.png,.webp,.bmp"
           multiple
-          maxSize={10}
+          maxSize={isPro() ? 100 : 10}
           label="选择图片"
           description="支持JPG、PNG、WebP、BMP格式，可选择多张"
           onFilesSelected={handleFilesSelected}
@@ -81,7 +86,7 @@ export default function ConvertImageToPdf() {
         {isFreeLimitReached && files.length > 0 && (
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
             <p className="text-sm text-amber-700">
-              免费版每日限用5次。升级到<a href="/pricing" className="underline font-medium">专业版</a>可无限使用。
+              免费版每日限用5次。升级到<Link to="/login" className="underline font-medium text-brand-600 ml-1">登录</Link>或<Link to="/pricing" className="underline font-medium text-brand-600 ml-1">升级专业版</Link>可无限使用。
             </p>
           </div>
         )}

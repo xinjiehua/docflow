@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
-import { FileText, CreditCard, Menu, X } from 'lucide-react'
+import { FileText, CreditCard, Menu, X, LogIn, Crown, LogOut, User } from 'lucide-react'
 import { useState } from 'react'
+import { useUserStore } from '@/stores/user'
 
 const navLinks = [
   { label: 'PDF工具', href: '/tools/pdf-merge' },
@@ -12,6 +13,8 @@ const navLinks = [
 export default function Header() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const { isLoggedIn, currentUser, logout, isPro, daysRemaining } = useUserStore()
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-navy-200/60">
@@ -46,16 +49,110 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Pricing + Mobile Toggle */}
+        {/* Right Section */}
         <div className="flex items-center gap-3">
-          <Link
-            to="/pricing"
-            className="btn-secondary text-sm !px-4 !py-2 no-underline"
-          >
-            <CreditCard className="w-4 h-4 mr-1.5" />
-            <span className="hidden sm:inline">升级专业版</span>
-            <span className="sm:hidden">定价</span>
-          </Link>
+          {/* Pricing / User Status */}
+          {isLoggedIn && currentUser ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-navy-50 transition-colors"
+              >
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                  isPro() ? 'bg-gradient-to-br from-brand-400 to-cyan-500' : 'bg-navy-100'
+                }`}>
+                  {isPro() ? (
+                    <Crown className="w-4 h-4 text-white" />
+                  ) : (
+                    <User className="w-4 h-4 text-navy-500" />
+                  )}
+                </div>
+                <div className="hidden sm:block text-left">
+                  <p className="text-xs font-medium text-navy-700 leading-tight">
+                    {currentUser.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')}
+                  </p>
+                  {isPro() ? (
+                    <p className="text-xs text-brand-600 leading-tight">
+                      专业版 · 剩余 {daysRemaining()} 天
+                    </p>
+                  ) : (
+                    <p className="text-xs text-navy-400 leading-tight">免费版</p>
+                  )}
+                </div>
+              </button>
+
+              {/* Dropdown */}
+              {userMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-navy-100 z-50 overflow-hidden">
+                    <div className="p-3 border-b border-navy-100">
+                      <p className="text-sm font-medium text-navy-800">{currentUser.phone}</p>
+                      <p className="text-xs text-navy-400 mt-0.5">
+                        {isPro() ? (
+                          <span className="text-brand-600">
+                            专业版 · 到期 {new Date(currentUser.expiryDate!).toLocaleDateString('zh-CN')}
+                          </span>
+                        ) : (
+                          '免费版用户'
+                        )}
+                      </p>
+                    </div>
+                    <div className="p-1.5">
+                      {!isPro() && (
+                        <Link
+                          to="/pricing"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-navy-600 hover:bg-navy-50 no-underline"
+                        >
+                          <CreditCard className="w-4 h-4" />
+                          升级专业版
+                        </Link>
+                      )}
+                      <Link
+                        to="/pricing"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-navy-600 hover:bg-navy-50 no-underline"
+                      >
+                        <Crown className="w-4 h-4" />
+                        我的订阅
+                      </Link>
+                      <hr className="my-1 border-navy-100" />
+                      <button
+                        onClick={() => { logout(); setUserMenuOpen(false) }}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 w-full"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        退出登录
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/pricing"
+              className="btn-secondary text-sm !px-4 !py-2 no-underline"
+            >
+              <CreditCard className="w-4 h-4 mr-1.5" />
+              <span className="hidden sm:inline">升级专业版</span>
+              <span className="sm:hidden">定价</span>
+            </Link>
+          )}
+
+          {/* Login button when not logged in */}
+          {!isLoggedIn && (
+            <Link
+              to="/login"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-navy-600 hover:bg-navy-50 no-underline font-medium"
+            >
+              <LogIn className="w-4 h-4" />
+              登录
+            </Link>
+          )}
+
+          {/* Mobile Toggle */}
           <button
             className="md:hidden p-2 rounded-lg hover:bg-navy-50 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -85,6 +182,16 @@ export default function Header() {
               </Link>
             )
           })}
+          {/* Mobile Login */}
+          {!isLoggedIn && (
+            <Link
+              to="/login"
+              onClick={() => setMobileOpen(false)}
+              className="block px-3.5 py-2.5 rounded-lg text-sm font-medium no-underline text-navy-500 hover:bg-navy-50"
+            >
+              登录 / 注册
+            </Link>
+          )}
         </nav>
       )}
     </header>
