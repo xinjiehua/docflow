@@ -7,6 +7,7 @@ import {
   Hash, PenTool, QrCode, FileUp, Mic, Volume2, FolderOpen, FileSpreadsheet,
   Columns, Type, Eraser, FileCheck, GitCompare, FileSignature, Music,
   RotateCcw, Paintbrush, FileJson, Binary, Fingerprint, Code2, Palette, Camera, MonitorSpeaker, BarChart3, FileCode, StickyNote,
+  Stamp, TableProperties, BookOpen, FileDiff, Sparkles, Square, HashIcon, Package, Pen, ScanBarcode, NotepadText, KeyRound, Clock, Link, ShieldCheck,
 } from 'lucide-react'
 
 const toolCategories = [
@@ -26,6 +27,9 @@ const toolCategories = [
       { name: 'PDF 添加页码', desc: '为PDF每页添加页码', icon: <Hash className="w-5 h-5" />, href: '/tools/pdf-add-page-numbers' },
       { name: 'PDF 转 Excel', desc: '提取PDF文字内容转为Excel表格', icon: <Table className="w-5 h-5" />, href: '/tools/pdf-to-excel' },
       { name: 'PDF 旋转页面', desc: '旋转PDF指定页面(90/180/270度)', icon: <RotateCcw className="w-5 h-5" />, href: '/tools/pdf-rotate-pages' },
+      { name: 'PDF 签名/图章', desc: '上传签名或盖章嵌入PDF指定位置', icon: <Stamp className="w-5 h-5" />, href: '/tools/pdf-sign-stamp' },
+      { name: 'PDF 表格提取', desc: '自动识别PDF表格导出Excel', icon: <TableProperties className="w-5 h-5" />, href: '/tools/pdf-table-extract' },
+      { name: 'PDF 书签管理', desc: '查看/添加/删除书签，批量生成', icon: <BookOpen className="w-5 h-5" />, href: '/tools/pdf-bookmark-manage' },
     ],
   },
   {
@@ -43,6 +47,7 @@ const toolCategories = [
       { name: '图片压缩', desc: '压缩图片体积，支持批量处理', icon: <FileDown className="w-5 h-5" />, href: '/tools/image-compress' },
       { name: 'Markdown 转 PDF', desc: 'Markdown文档转为PDF文件', icon: <FileText className="w-5 h-5" />, href: '/tools/markdown-to-pdf' },
       { name: 'HTML 转 PDF', desc: '将HTML内容转为PDF文档', icon: <FileCode className="w-5 h-5" />, href: '/tools/html-to-pdf' },
+      { name: 'Word 文档对比', desc: '对比两个Word文件差异', icon: <FileDiff className="w-5 h-5" />, href: '/tools/word-document-compare' },
     ],
   },
   {
@@ -58,6 +63,10 @@ const toolCategories = [
       { name: '图片去水印', desc: '框选区域去除图片水印', icon: <Eraser className="w-5 h-5" />, href: '/tools/image-remove-watermark' },
       { name: '图片拼接', desc: '多张图片拼接为一张(横向/纵向/网格)', icon: <Paintbrush className="w-5 h-5" />, href: '/tools/image-stitch' },
       { name: '图片EXIF查看', desc: '查看照片拍摄信息和GPS位置', icon: <Camera className="w-5 h-5" />, href: '/tools/image-exif-viewer' },
+      { name: '图片滤镜特效', desc: '14种滤镜实时预览', icon: <Sparkles className="w-5 h-5" />, href: '/tools/image-filter' },
+      { name: '图片边框/圆角', desc: '边框、圆角、阴影批量处理', icon: <Square className="w-5 h-5" />, href: '/tools/image-border' },
+      { name: '图片转ASCII', desc: '将图片转为ASCII字符画', icon: <HashIcon className="w-5 h-5" />, href: '/tools/image-ascii-art' },
+      { name: '批量图片压缩', desc: '多图批量压缩打包下载', icon: <Package className="w-5 h-5" />, href: '/tools/batch-image-compress' },
     ],
   },
   {
@@ -87,6 +96,11 @@ const toolCategories = [
       { name: '在线表格编辑', desc: '创建编辑表格，导入导出CSV', icon: <FileSpreadsheet className="w-5 h-5" />, href: '/tools/online-spreadsheet' },
       { name: 'Markdown编辑器', desc: '实时预览，导出HTML/TXT/PDF', icon: <FileCode className="w-5 h-5" />, href: '/tools/markdown-editor' },
       { name: '屏幕录制', desc: '录制屏幕操作，导出WebM视频', icon: <MonitorSpeaker className="w-5 h-5" />, href: '/tools/screen-recorder' },
+      { name: '在线画板', desc: '画笔/形状/箭头/文字绘图', icon: <Pen className="w-5 h-5" />, href: '/tools/online-drawing-board' },
+      { name: '二维码解码', desc: '上传二维码图片识别内容', icon: <ScanBarcode className="w-5 h-5" />, href: '/tools/qr-code-decoder' },
+      { name: '条形码生成', desc: 'Code128/EAN-13/UPC-A等', icon: <ScanBarcode className="w-5 h-5" />, href: '/tools/barcode-generator' },
+      { name: '在线便签', desc: '自动保存多条便签管理', icon: <NotepadText className="w-5 h-5" />, href: '/tools/online-notes' },
+      { name: '密码生成器', desc: '自定义规则批量生成+强度评估', icon: <KeyRound className="w-5 h-5" />, href: '/tools/password-generator' },
     ],
   },
   {
@@ -100,6 +114,10 @@ const toolCategories = [
       { name: '正则表达式测试', desc: '实时测试正则匹配，常用正则库', icon: <Code2 className="w-5 h-5" />, href: '/tools/regex-tester' },
       { name: '文件哈希计算', desc: 'MD5/SHA系列哈希值计算与校验', icon: <Fingerprint className="w-5 h-5" />, href: '/tools/file-hash' },
       { name: '颜色转换器', desc: 'HEX/RGB/HSL/CMYK互转+配色方案', icon: <Palette className="w-5 h-5" />, href: '/tools/color-converter' },
+      { name: '时间戳转换', desc: 'Unix时间戳与日期互转', icon: <Clock className="w-5 h-5" />, href: '/tools/timestamp-converter' },
+      { name: 'URL 编解码', desc: 'URL编码/解码+结构解析', icon: <Link className="w-5 h-5" />, href: '/tools/url-encoder-decoder' },
+      { name: 'JWT 解析器', desc: '解析Token的Header/Payload', icon: <ShieldCheck className="w-5 h-5" />, href: '/tools/jwt-decoder' },
+      { name: '进制转换器', desc: '二进制/八进制/十进制/十六进制', icon: <Binary className="w-5 h-5" />, href: '/tools/base-converter' },
     ],
   },
   {
@@ -146,7 +164,7 @@ export default function Home() {
 
           <p className="mt-6 text-lg sm:text-xl text-navy-500 max-w-2xl mx-auto leading-relaxed animate-fade-in-up stagger-2">
             PDF处理、格式转换、OCR文字识别、图片编辑 --
-            46+款办公工具，无需安装软件，打开网页即可使用
+            63+款办公工具，无需安装软件，打开网页即可使用
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up stagger-3">

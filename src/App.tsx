@@ -57,6 +57,24 @@ import ImageExifViewer from '@/pages/tools/ImageExifViewer'
 import MarkdownEditor from '@/pages/tools/MarkdownEditor'
 import ScreenRecorder from '@/pages/tools/ScreenRecorder'
 import TextStatistics from '@/pages/tools/TextStatistics'
+// Batch 5: 17 new tools
+import PdfSignStamp from '@/pages/tools/PdfSignStamp'
+import PdfTableExtract from '@/pages/tools/PdfTableExtract'
+import PdfBookmarkManage from '@/pages/tools/PdfBookmarkManage'
+import WordDocumentCompare from '@/pages/tools/WordDocumentCompare'
+import ImageFilter from '@/pages/tools/ImageFilter'
+import ImageBorder from '@/pages/tools/ImageBorder'
+import ImageAsciiArt from '@/pages/tools/ImageAsciiArt'
+import BatchImageCompress from '@/pages/tools/BatchImageCompress'
+import OnlineDrawingBoard from '@/pages/tools/OnlineDrawingBoard'
+import QrCodeDecoder from '@/pages/tools/QrCodeDecoder'
+import BarcodeGenerator from '@/pages/tools/BarcodeGenerator'
+import OnlineNotes from '@/pages/tools/OnlineNotes'
+import PasswordGenerator from '@/pages/tools/PasswordGenerator'
+import TimestampConverter from '@/pages/tools/TimestampConverter'
+import UrlEncoderDecoder from '@/pages/tools/UrlEncoderDecoder'
+import JwtDecoder from '@/pages/tools/JwtDecoder'
+import BaseConverter from '@/pages/tools/BaseConverter'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -145,6 +163,24 @@ function AppRoutes() {
       <Route path="/tools/markdown-editor" element={<MarkdownEditor />} />
       <Route path="/tools/screen-recorder" element={<ScreenRecorder />} />
       <Route path="/tools/text-statistics" element={<TextStatistics />} />
+      {/* Batch 5: 17 New Tools */}
+      <Route path="/tools/pdf-sign-stamp" element={<PdfSignStamp />} />
+      <Route path="/tools/pdf-table-extract" element={<PdfTableExtract />} />
+      <Route path="/tools/pdf-bookmark-manage" element={<PdfBookmarkManage />} />
+      <Route path="/tools/word-document-compare" element={<WordDocumentCompare />} />
+      <Route path="/tools/image-filter" element={<ImageFilter />} />
+      <Route path="/tools/image-border" element={<ImageBorder />} />
+      <Route path="/tools/image-ascii-art" element={<ImageAsciiArt />} />
+      <Route path="/tools/batch-image-compress" element={<BatchImageCompress />} />
+      <Route path="/tools/online-drawing-board" element={<OnlineDrawingBoard />} />
+      <Route path="/tools/qr-code-decoder" element={<QrCodeDecoder />} />
+      <Route path="/tools/barcode-generator" element={<BarcodeGenerator />} />
+      <Route path="/tools/online-notes" element={<OnlineNotes />} />
+      <Route path="/tools/password-generator" element={<PasswordGenerator />} />
+      <Route path="/tools/timestamp-converter" element={<TimestampConverter />} />
+      <Route path="/tools/url-encoder-decoder" element={<UrlEncoderDecoder />} />
+      <Route path="/tools/jwt-decoder" element={<JwtDecoder />} />
+      <Route path="/tools/base-converter" element={<BaseConverter />} />
     </Routes>
   )
 }
