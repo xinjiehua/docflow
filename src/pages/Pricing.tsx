@@ -95,7 +95,7 @@ function PaymentModal({ onClose, selectedPlan }: { onClose: () => void; selected
   const navigate = useNavigate()
 
   const { isLoggedIn, currentUser, submitPayment, isPro, activateWithCode } = useUserStore()
-  const wechatId = 'X617574493'
+  const wechatId = 'qaz617574493'
 
   const handleCopy = () => {
     navigator.clipboard.writeText(wechatId)
@@ -262,7 +262,7 @@ function PaymentModal({ onClose, selectedPlan }: { onClose: () => void; selected
 
               <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
                 <p className="text-xs text-amber-600">
-                  <strong>提示：</strong>支付完成后，请将交易号记录好。添加客服微信 X617574493 发送交易号，客服审核后会自动生成激活码。
+                  <strong>提示：</strong>支付完成后，请将交易号记录好。添加客服微信 qaz617574493 发送交易号，客服审核后会自动生成激活码。
                 </p>
               </div>
 
