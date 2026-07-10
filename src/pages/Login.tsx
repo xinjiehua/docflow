@@ -191,6 +191,15 @@ export default function Login() {
           </button>
         </form>
 
+        {/* Forgot Password (login mode only) */}
+        {mode === 'login' && (
+          <div className="mt-4 text-center">
+            <p className="text-xs text-navy-400">
+              忘记密码？请联系客服微信 <span className="font-medium text-brand-600">qaz617574493</span> 进行密码重置
+            </p>
+          </div>
+        )}
+
         {/* Toggle */}
         <div className="mt-4 text-center">
           <button

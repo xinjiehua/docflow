@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Shield, Users, CreditCard, Check, X, ArrowLeft,
   Clock, Phone, Crown, Key, Search,
-  ChevronDown, ChevronUp, Copy, ClipboardCheck, Loader2
+  ChevronDown, ChevronUp, Copy, ClipboardCheck, Loader2, KeyRound
 } from 'lucide-react'
 import { useUserStore, PaymentRecord, UserProfile } from '@/stores/user'
 import { supabase } from '@/lib/supabase'
@@ -22,6 +22,7 @@ export default function Admin() {
     verifyPayment,
     rejectPayment,
     upgradeUser,
+    resetUserPassword,
   } = useUserStore()
 
   const [authenticated, setAuthenticated] = useState(false)
@@ -41,6 +42,10 @@ export default function Admin() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const [dataLoaded, setDataLoaded] = useState(false)
+  const [resetPwdUser, setResetPwdUser] = useState<UserProfile | null>(null)
+  const [newPassword, setNewPassword] = useState('')
+  const [resetPwdLoading, setResetPwdLoading] = useState(false)
+  const [resetPwdMsg, setResetPwdMsg] = useState('')
   const preAuth = searchParams.get('pre_auth') === 'true'
 
   // Single auth check: zustand state first, then pre_auth, fallback to Supabase session
@@ -140,6 +145,24 @@ export default function Admin() {
     setActionLoading(null)
   }
 
+  const handleResetPassword = async () => {
+    if (!resetPwdUser || !newPassword || newPassword.length < 6) return
+    setResetPwdLoading(true)
+    setResetPwdMsg('')
+    const success = await resetUserPassword(resetPwdUser.id, newPassword)
+    if (success) {
+      setResetPwdMsg('密码已重置成功')
+      setTimeout(() => {
+        setResetPwdUser(null)
+        setNewPassword('')
+        setResetPwdMsg('')
+      }, 1500)
+    } else {
+      setResetPwdMsg('重置失败，请重试')
+    }
+    setResetPwdLoading(false)
+  }
+
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
     setCopyCode(code)
@@ -205,6 +228,55 @@ export default function Admin() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      {/* Reset Password Modal */}
+      {resetPwdUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setResetPwdUser(null); setNewPassword(''); setResetPwdMsg('') }} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-navy-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-cyan-500 flex items-center justify-center">
+                  <KeyRound className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-display font-bold text-navy-800">重置用户密码</h2>
+                  <p className="text-xs text-navy-400">{resetPwdUser.phone}</p>
+                </div>
+              </div>
+              <button onClick={() => { setResetPwdUser(null); setNewPassword(''); setResetPwdMsg('') }} className="p-2 rounded-lg hover:bg-navy-50">
+                <X className="w-5 h-5 text-navy-400" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {resetPwdMsg && (
+                <div className={`p-3 rounded-xl border ${resetPwdMsg.includes('成功') ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                  <p className={`text-sm ${resetPwdMsg.includes('成功') ? 'text-green-600' : 'text-red-600'}`}>{resetPwdMsg}</p>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-navy-700 mb-1.5">新密码</label>
+                <input
+                  type="text"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="请输入新密码（至少6位）"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-navy-200 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-all"
+                />
+                <p className="text-xs text-navy-400 mt-1">请将新密码通过微信告知用户</p>
+              </div>
+              <button
+                onClick={handleResetPassword}
+                disabled={resetPwdLoading || newPassword.length < 6}
+                className="btn-primary w-full !py-3 disabled:opacity-50"
+              >
+                {resetPwdLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />重置中...</> : '确认重置密码'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification */}
       {/* Notification */}
       {notification && (
         <div className="fixed top-20 right-4 z-50 animate-fade-in-up">
@@ -346,6 +418,7 @@ export default function Admin() {
                       upgradeDays={upgradeDays}
                       onUpgradeDaysChange={setUpgradeDays}
                       onUpgrade={() => handleUpgrade(user.id)}
+                      onResetPassword={() => setResetPwdUser(user)}
                       actionLoading={actionLoading}
                       formatTime={formatTime}
                     />
@@ -539,6 +612,7 @@ function UserCard({
   upgradeDays,
   onUpgradeDaysChange,
   onUpgrade,
+  onResetPassword,
   actionLoading,
   formatTime,
 }: {
@@ -546,6 +620,7 @@ function UserCard({
   upgradeDays: number
   onUpgradeDaysChange: (days: number) => void
   onUpgrade: () => void
+  onResetPassword: () => void
   actionLoading: string | null
   formatTime: (iso: string) => string
 }) {
@@ -615,6 +690,13 @@ function UserCard({
             ) : (
               <><Crown className="w-4 h-4 mr-1" />升级</>
             )}
+          </button>
+          <button
+            onClick={onResetPassword}
+            title="重置用户密码"
+            className="p-2 rounded-lg border-2 border-navy-200 text-navy-400 hover:text-brand-600 hover:border-brand-300 transition-colors"
+          >
+            <KeyRound className="w-4 h-4" />
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseAdmin } from '@/lib/supabase'
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js'
 
 export interface UserProfile {
@@ -48,6 +48,9 @@ interface UserState {
   // User management
   getAllUsers: () => Promise<UserProfile[]>
   upgradeUser: (userId: string, days: number) => Promise<boolean>
+
+  // Admin reset user password
+  resetUserPassword: (userId: string, newPassword: string) => Promise<boolean>
 
   // Helpers
   isPro: () => boolean
@@ -400,6 +403,22 @@ export const useUserStore = create<UserState>()((set, get) => ({
     }
 
     return true
+  },
+
+  resetUserPassword: async (userId: string, newPassword: string) => {
+    try {
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: newPassword,
+      })
+      if (error) {
+        console.error('Reset password error:', error)
+        return false
+      }
+      return true
+    } catch {
+      console.error('Reset password exception')
+      return false
+    }
   },
 
   activateWithCode: async (code: string) => {
