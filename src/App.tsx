@@ -141,6 +141,63 @@ import FileFormatQuery from '@/pages/tools/FileFormatQuery'
 import ImageSplit from '@/pages/tools/ImageSplit'
 import WatermarkPaper from '@/pages/tools/WatermarkPaper'
 
+// Batch 9: Text(9) + GIF(4) + Calculators(5) = 18
+import TraditionalSimplified from '@/pages/tools/TraditionalSimplified'
+import PinyinConverter from '@/pages/tools/PinyinConverter'
+import TextDedup from '@/pages/tools/TextDedup'
+import TextSort from '@/pages/tools/TextSort'
+import CaseConverter from '@/pages/tools/CaseConverter'
+import LineNumberTool from '@/pages/tools/LineNumberTool'
+import TextReplace from '@/pages/tools/TextReplace'
+import SymbolInsert from '@/pages/tools/SymbolInsert'
+import EmojiTool from '@/pages/tools/EmojiTool'
+import GifFrameViewer from '@/pages/tools/GifFrameViewer'
+import GifCompressor from '@/pages/tools/GifCompressor'
+import GifSplitter from '@/pages/tools/GifSplitter'
+import ImageToGif from '@/pages/tools/ImageToGif'
+import BmiCalculator from '@/pages/tools/BmiCalculator'
+import UnitConverter from '@/pages/tools/UnitConverter'
+import DateCalculator from '@/pages/tools/DateCalculator'
+import PercentageCalculator from '@/pages/tools/PercentageCalculator'
+import ExchangeRateCalculator from '@/pages/tools/ExchangeRateCalculator'
+
+// Batch 10: Encrypt(4) + Color(4) + Dev(7) = 15
+import TextEncrypt from '@/pages/tools/TextEncrypt'
+import HashGenerator from '@/pages/tools/HashGenerator'
+import PasswordStrengthChecker from '@/pages/tools/PasswordStrengthChecker'
+import RandomPasswordGenerator from '@/pages/tools/RandomPasswordGenerator'
+import ColorPalette from '@/pages/tools/ColorPalette'
+import ColorContrastChecker from '@/pages/tools/ColorContrastChecker'
+import GradientGenerator from '@/pages/tools/GradientGenerator'
+import GlassmorphismGenerator from '@/pages/tools/GlassmorphismGenerator'
+import CronExpression from '@/pages/tools/CronExpression'
+import IpAddressTool from '@/pages/tools/IpAddressTool'
+import LoremIpsumAdvanced from '@/pages/tools/LoremIpsumAdvanced'
+import RegexVisualizer from '@/pages/tools/RegexVisualizer'
+import JsonDiff from '@/pages/tools/JsonDiff'
+import SqlFormatter from '@/pages/tools/SqlFormatter'
+import UuidGenerator from '@/pages/tools/UuidGenerator'
+
+// Batch 11: Audio(4) + Life(5) = 9
+import AudioTrimmer from '@/pages/tools/AudioTrimmer'
+import AudioVolumeNormalizer from '@/pages/tools/AudioVolumeNormalizer'
+import AudioFormatConverter from '@/pages/tools/AudioFormatConverter'
+import AudioMerger from '@/pages/tools/AudioMerger'
+import CountdownTimer from '@/pages/tools/CountdownTimer'
+import PomodoroTimer from '@/pages/tools/PomodoroTimer'
+import Stopwatch from '@/pages/tools/Stopwatch'
+import LoanCalculator from '@/pages/tools/LoanCalculator'
+import TaxCalculator from '@/pages/tools/TaxCalculator'
+
+// Batch 12: Video(7) = 7
+import VideoCompressor from '@/pages/tools/VideoCompressor'
+import VideoFormatConverter from '@/pages/tools/VideoFormatConverter'
+import VideoFrameCapture from '@/pages/tools/VideoFrameCapture'
+import VideoToAudio from '@/pages/tools/VideoToAudio'
+import VideoSpeedChanger from '@/pages/tools/VideoSpeedChanger'
+import VideoThumbnail from '@/pages/tools/VideoThumbnail'
+import VideoMetadata from '@/pages/tools/VideoMetadata'
+
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => {
@@ -307,6 +364,73 @@ function AppRoutes() {
       <Route path="/tools/url-encoder-decoder" element={<UrlEncoderDecoder />} />
       <Route path="/tools/jwt-decoder" element={<JwtDecoder />} />
       <Route path="/tools/base-converter" element={<BaseConverter />} />
+
+      {/* Text Processing */}
+      <Route path="/tools/traditional-simplified" element={<TraditionalSimplified />} />
+      <Route path="/tools/pinyin-converter" element={<PinyinConverter />} />
+      <Route path="/tools/text-dedup" element={<TextDedup />} />
+      <Route path="/tools/text-sort" element={<TextSort />} />
+      <Route path="/tools/case-converter" element={<CaseConverter />} />
+      <Route path="/tools/line-number-tool" element={<LineNumberTool />} />
+      <Route path="/tools/text-replace" element={<TextReplace />} />
+      <Route path="/tools/symbol-insert" element={<SymbolInsert />} />
+      <Route path="/tools/emoji-tool" element={<EmojiTool />} />
+
+      {/* GIF Tools */}
+      <Route path="/tools/gif-frame-viewer" element={<GifFrameViewer />} />
+      <Route path="/tools/gif-compressor" element={<GifCompressor />} />
+      <Route path="/tools/gif-splitter" element={<GifSplitter />} />
+      <Route path="/tools/image-to-gif" element={<ImageToGif />} />
+
+      {/* Calculators */}
+      <Route path="/tools/bmi-calculator" element={<BmiCalculator />} />
+      <Route path="/tools/unit-converter" element={<UnitConverter />} />
+      <Route path="/tools/date-calculator" element={<DateCalculator />} />
+      <Route path="/tools/percentage-calculator" element={<PercentageCalculator />} />
+      <Route path="/tools/exchange-rate-calculator" element={<ExchangeRateCalculator />} />
+
+      {/* Encryption & Security */}
+      <Route path="/tools/text-encrypt" element={<TextEncrypt />} />
+      <Route path="/tools/hash-generator" element={<HashGenerator />} />
+      <Route path="/tools/password-strength-checker" element={<PasswordStrengthChecker />} />
+      <Route path="/tools/random-password-generator" element={<RandomPasswordGenerator />} />
+
+      {/* Color Tools */}
+      <Route path="/tools/color-palette" element={<ColorPalette />} />
+      <Route path="/tools/color-contrast-checker" element={<ColorContrastChecker />} />
+      <Route path="/tools/gradient-generator" element={<GradientGenerator />} />
+      <Route path="/tools/glassmorphism-generator" element={<GlassmorphismGenerator />} />
+
+      {/* Enhanced Developer Tools */}
+      <Route path="/tools/cron-expression" element={<CronExpression />} />
+      <Route path="/tools/ip-address-tool" element={<IpAddressTool />} />
+      <Route path="/tools/lorem-ipsum-advanced" element={<LoremIpsumAdvanced />} />
+      <Route path="/tools/regex-visualizer" element={<RegexVisualizer />} />
+      <Route path="/tools/json-diff" element={<JsonDiff />} />
+      <Route path="/tools/sql-formatter" element={<SqlFormatter />} />
+      <Route path="/tools/uuid-generator" element={<UuidGenerator />} />
+
+      {/* Audio Tools */}
+      <Route path="/tools/audio-trimmer" element={<AudioTrimmer />} />
+      <Route path="/tools/audio-volume-normalizer" element={<AudioVolumeNormalizer />} />
+      <Route path="/tools/audio-format-converter" element={<AudioFormatConverter />} />
+      <Route path="/tools/audio-merger" element={<AudioMerger />} />
+
+      {/* Life Tools */}
+      <Route path="/tools/countdown-timer" element={<CountdownTimer />} />
+      <Route path="/tools/pomodoro-timer" element={<PomodoroTimer />} />
+      <Route path="/tools/stopwatch" element={<Stopwatch />} />
+      <Route path="/tools/loan-calculator" element={<LoanCalculator />} />
+      <Route path="/tools/tax-calculator" element={<TaxCalculator />} />
+
+      {/* Video Tools */}
+      <Route path="/tools/video-compressor" element={<VideoCompressor />} />
+      <Route path="/tools/video-format-converter" element={<VideoFormatConverter />} />
+      <Route path="/tools/video-frame-capture" element={<VideoFrameCapture />} />
+      <Route path="/tools/video-to-audio" element={<VideoToAudio />} />
+      <Route path="/tools/video-speed-changer" element={<VideoSpeedChanger />} />
+      <Route path="/tools/video-thumbnail" element={<VideoThumbnail />} />
+      <Route path="/tools/video-metadata" element={<VideoMetadata />} />
     </Routes>
   )
 }
