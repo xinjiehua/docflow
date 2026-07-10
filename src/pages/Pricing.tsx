@@ -18,8 +18,8 @@ const planOptions: PlanOption[] = [
     id: 'monthly',
     name: '月付',
     duration: 30,
-    price: 29,
-    unitPrice: 29,
+    price: 25,
+    unitPrice: 25,
     badge: null,
     highlight: false,
   },
@@ -27,8 +27,8 @@ const planOptions: PlanOption[] = [
     id: 'quarterly',
     name: '季付',
     duration: 90,
-    price: 79,
-    unitPrice: 26.3,
+    price: 59,
+    unitPrice: 19.7,
     badge: null,
     highlight: false,
   },
@@ -36,51 +36,52 @@ const planOptions: PlanOption[] = [
     id: 'semiannual',
     name: '半年付',
     duration: 180,
-    price: 149,
-    unitPrice: 24.8,
-    badge: '最受欢迎',
-    highlight: true,
+    price: 109,
+    unitPrice: 18.2,
+    badge: null,
+    highlight: false,
   },
   {
     id: 'yearly',
     name: '年付',
     duration: 365,
-    price: 259,
-    unitPrice: 21.6,
-    badge: null,
-    highlight: false,
+    price: 159,
+    unitPrice: 13.3,
+    badge: '最受欢迎',
+    highlight: true,
   },
   {
     id: 'threeyear',
     name: '三年付',
     duration: 1095,
-    price: 699,
-    unitPrice: 19.4,
+    price: 399,
+    unitPrice: 11.1,
     badge: '超值',
     highlight: false,
   },
 ]
 
 const freeFeatures = [
-  { text: '每日5次免费处理', included: true },
-  { text: '所有PDF工具', included: true },
-  { text: '格式转换', included: true },
-  { text: '发票OCR识别', included: true },
-  { text: '单文件最大10MB', included: true },
+  { text: '每日3次免费处理', included: true },
+  { text: '115+款工具全部可用', included: true },
+  { text: 'PDF/PPT/格式转换/图片/办公', included: true },
+  { text: '智能识别(OCR/发票)', included: true },
+  { text: '开发者工具(JSON/正则等)', included: true },
+  { text: '单文件最大5MB', included: true },
+  { text: '无限次处理', included: false },
+  { text: '大文件(100MB)支持', included: false },
   { text: '批量处理', included: false },
-  { text: '无水印导出', included: false },
-  { text: '优先客服支持', included: false },
 ]
 
 const proFeatures = [
   { text: '无限次处理', included: true },
-  { text: '所有PDF工具', included: true },
-  { text: '格式转换', included: true },
-  { text: '发票OCR识别', included: true },
+  { text: '115+款工具全部可用', included: true },
+  { text: 'PDF/PPT/格式转换/图片/办公', included: true },
+  { text: '智能识别(OCR/发票)', included: true },
+  { text: '开发者工具(JSON/正则等)', included: true },
   { text: '单文件最大100MB', included: true },
-  { text: '批量处理', included: true },
-  { text: '无水印导出', included: true },
   { text: '优先客服支持', included: true },
+  { text: '所有功能无限制', included: true },
 ]
 
 function PaymentModal({ onClose, selectedPlan }: { onClose: () => void; selectedPlan: PlanOption }) {
@@ -474,7 +475,7 @@ export default function Pricing() {
             </div>
             <div>
               <h2 className="text-lg font-display font-bold text-navy-800">免费版</h2>
-              <p className="text-sm text-navy-400">个人日常使用足够</p>
+              <p className="text-sm text-navy-400">每日3次，体验全部功能</p>
             </div>
           </div>
           <div className="mb-6">
@@ -597,7 +598,7 @@ export default function Pricing() {
           {[
             {
               q: '免费版有使用限制吗?',
-              a: '免费版每日可使用5次任意工具处理。单个文件最大支持10MB。对日常使用已经足够。',
+              a: '免费版每日可使用3次任意工具处理，单文件最大5MB。涵盖全部115+款工具，包含PDF、PPT、格式转换、图片处理、办公工具等。',
             },
             {
               q: '文件安全吗?',
@@ -613,11 +614,11 @@ export default function Pricing() {
             },
             {
               q: '可以随时取消订阅吗?',
-              a: '当然可以。专业版到期后自动回到免费版。不同套餐时长越长越优惠，如需退款请联系客服。',
+              a: '当然可以。专业版到期后自动回到免费版，不会自动扣费。年付¥159折合仅¥13.3/月，三年付¥399折合¥11.1/月，比竞品便宜60%以上。',
             },
             {
               q: '支付后多久能开通?',
-              a: '联系客服后审核通过立即生成激活码，输入激活码即可开通。工作时间通常几分钟内完成。',
+              a: '联系客服后审核通过立即生成激活码，输入激活码即可开通。工作时间通常几分钟内完成。比iLovePDF/Smallpdf便宜10%~60%，功能却多3~5倍。',
             },
           ].map((item) => (
             <div key={item.q} className="card !p-5">
