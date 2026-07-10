@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useUserStore } from '@/stores/user'
+import { useUsageStore, DAILY_FREE_LIMIT } from '@/stores/usage'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import Home from '@/pages/Home'
@@ -206,6 +207,52 @@ function ScrollToTop() {
   return null
 }
 
+
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const isLoggedIn = useUserStore((s) => s.isLoggedIn)
+  const isPro = useUserStore((s) => s.isPro())
+  const totalUsed = useUsageStore((s) => s.totalUsed)
+  const canUse = useUsageStore((s) => s.canUse)
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (!isPro() && !canUse()) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-navy-50">
+        <div className="text-center max-w-md mx-auto px-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-6">
+            <span className="text-white font-bold text-2xl">!</span>
+          </div>
+          <h2 className="text-2xl font-bold text-navy-800 mb-3">今日免费次数已用完</h2>
+          <p className="text-navy-500 mb-2">免费用户每天可使用 {DAILY_FREE_LIMIT} 次工具</p>
+          <p className="text-navy-400 text-sm mb-8">升级为 Pro 会员，享受无限次使用</p>
+          <a href="/pricing" className="btn-primary inline-block !px-8 !py-3 no-underline">升级 Pro</a>
+        </div>
+      </div>
+    )
+  }
+
+  return <>{children}</>
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const currentUser = useUserStore((s) => s.currentUser)
+  const isLoggedIn = useUserStore((s) => s.isLoggedIn)
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (currentUser?.plan !== 'admin') {
+    return <Navigate to="/" replace />
+  }
+
+  return <>{children}</>
+}
+
 function AppRoutes() {
   const initialize = useUserStore((s) => s.initialize)
   const loading = useUserStore((s) => s.loading)
@@ -232,205 +279,205 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/admin" element={<Admin />} />
+      <Route path="/admin" element={<AdminRoute><Admin></Admin></AdminRoute>} />
 
       {/* PDF Tools */}
-      <Route path="/tools/pdf-merge" element={<PdfMerge />} />
-      <Route path="/tools/pdf-split" element={<PdfSplit />} />
-      <Route path="/tools/pdf-watermark" element={<PdfWatermark />} />
-      <Route path="/tools/pdf-compress" element={<PdfCompress />} />
-      <Route path="/tools/pdf-to-image" element={<PdfToImage />} />
-      <Route path="/tools/pdf-encrypt" element={<PdfEncrypt />} />
-      <Route path="/tools/pdf-extract-pages" element={<PdfExtractPages />} />
-      <Route path="/tools/pdf-add-page-numbers" element={<PdfAddPageNumbers />} />
-      <Route path="/tools/pdf-to-excel" element={<PdfToExcel />} />
-      <Route path="/tools/pdf-rotate-pages" element={<PdfRotatePages />} />
-      <Route path="/tools/pdf-sign-stamp" element={<PdfSignStamp />} />
-      <Route path="/tools/pdf-table-extract" element={<PdfTableExtract />} />
-      <Route path="/tools/pdf-bookmark-manage" element={<PdfBookmarkManage />} />
-      <Route path="/tools/pdf-editor" element={<PdfEditor />} />
-      <Route path="/tools/pdf-crop" element={<PdfCrop />} />
-      <Route path="/tools/pdf-add-text" element={<PdfAddText />} />
-      <Route path="/tools/pdf-translate" element={<PdfTranslate />} />
-      <Route path="/tools/pdf-to-text" element={<PdfToText />} />
-      <Route path="/tools/pdf-to-csv" element={<PdfToCsv />} />
-      <Route path="/tools/pdf-rearrange" element={<PdfRearrange />} />
+      <Route path="/tools/pdf-merge" element={<ProtectedRoute><PdfMerge></PdfMerge></ProtectedRoute>} />
+      <Route path="/tools/pdf-split" element={<ProtectedRoute><PdfSplit></PdfSplit></ProtectedRoute>} />
+      <Route path="/tools/pdf-watermark" element={<ProtectedRoute><PdfWatermark></PdfWatermark></ProtectedRoute>} />
+      <Route path="/tools/pdf-compress" element={<ProtectedRoute><PdfCompress></PdfCompress></ProtectedRoute>} />
+      <Route path="/tools/pdf-to-image" element={<ProtectedRoute><PdfToImage></PdfToImage></ProtectedRoute>} />
+      <Route path="/tools/pdf-encrypt" element={<ProtectedRoute><PdfEncrypt></PdfEncrypt></ProtectedRoute>} />
+      <Route path="/tools/pdf-extract-pages" element={<ProtectedRoute><PdfExtractPages></PdfExtractPages></ProtectedRoute>} />
+      <Route path="/tools/pdf-add-page-numbers" element={<ProtectedRoute><PdfAddPageNumbers></PdfAddPageNumbers></ProtectedRoute>} />
+      <Route path="/tools/pdf-to-excel" element={<ProtectedRoute><PdfToExcel></PdfToExcel></ProtectedRoute>} />
+      <Route path="/tools/pdf-rotate-pages" element={<ProtectedRoute><PdfRotatePages></PdfRotatePages></ProtectedRoute>} />
+      <Route path="/tools/pdf-sign-stamp" element={<ProtectedRoute><PdfSignStamp></PdfSignStamp></ProtectedRoute>} />
+      <Route path="/tools/pdf-table-extract" element={<ProtectedRoute><PdfTableExtract></PdfTableExtract></ProtectedRoute>} />
+      <Route path="/tools/pdf-bookmark-manage" element={<ProtectedRoute><PdfBookmarkManage></PdfBookmarkManage></ProtectedRoute>} />
+      <Route path="/tools/pdf-editor" element={<ProtectedRoute><PdfEditor></PdfEditor></ProtectedRoute>} />
+      <Route path="/tools/pdf-crop" element={<ProtectedRoute><PdfCrop></PdfCrop></ProtectedRoute>} />
+      <Route path="/tools/pdf-add-text" element={<ProtectedRoute><PdfAddText></PdfAddText></ProtectedRoute>} />
+      <Route path="/tools/pdf-translate" element={<ProtectedRoute><PdfTranslate></PdfTranslate></ProtectedRoute>} />
+      <Route path="/tools/pdf-to-text" element={<ProtectedRoute><PdfToText></PdfToText></ProtectedRoute>} />
+      <Route path="/tools/pdf-to-csv" element={<ProtectedRoute><PdfToCsv></PdfToCsv></ProtectedRoute>} />
+      <Route path="/tools/pdf-rearrange" element={<ProtectedRoute><PdfRearrange></PdfRearrange></ProtectedRoute>} />
 
       {/* Format Conversion */}
-      <Route path="/tools/convert-pdf-to-word" element={<ConvertPdfToWord />} />
-      <Route path="/tools/convert-word-to-pdf" element={<ConvertWordToPdf />} />
-      <Route path="/tools/convert-excel-to-pdf" element={<ConvertExcelToPdf />} />
-      <Route path="/tools/convert-image-to-pdf" element={<ConvertImageToPdf />} />
-      <Route path="/tools/convert-word-to-excel" element={<WordToExcel />} />
-      <Route path="/tools/image-format-convert" element={<ImageFormatConvert />} />
-      <Route path="/tools/image-compress" element={<ImageCompress />} />
-      <Route path="/tools/markdown-to-pdf" element={<MarkdownToPdf />} />
-      <Route path="/tools/html-to-pdf" element={<HtmlToPdf />} />
-      <Route path="/tools/word-document-compare" element={<WordDocumentCompare />} />
-      <Route path="/tools/epub-to-pdf" element={<EpubToPdf />} />
-      <Route path="/tools/pdf-to-epub" element={<PdfToEpub />} />
-      <Route path="/tools/csv-to-excel" element={<CsvToExcel />} />
-      <Route path="/tools/excel-to-csv" element={<ExcelToCsv />} />
-      <Route path="/tools/xml-to-json" element={<XmlToJson />} />
-      <Route path="/tools/json-to-xml" element={<JsonToXml />} />
-      <Route path="/tools/ppt-to-image" element={<PptToImage />} />
-      <Route path="/tools/image-to-ppt" element={<ImageToPpt />} />
-      <Route path="/tools/pdf-to-ppt" element={<PdfToPpt />} />
-      <Route path="/tools/ppt-to-pdf" element={<PptToPdf />} />
-      <Route path="/tools/ppt-to-word" element={<PptToWord />} />
-      <Route path="/tools/markdown-to-ppt" element={<MarkdownToPpt />} />
+      <Route path="/tools/convert-pdf-to-word" element={<ProtectedRoute><ConvertPdfToWord></ConvertPdfToWord></ProtectedRoute>} />
+      <Route path="/tools/convert-word-to-pdf" element={<ProtectedRoute><ConvertWordToPdf></ConvertWordToPdf></ProtectedRoute>} />
+      <Route path="/tools/convert-excel-to-pdf" element={<ProtectedRoute><ConvertExcelToPdf></ConvertExcelToPdf></ProtectedRoute>} />
+      <Route path="/tools/convert-image-to-pdf" element={<ProtectedRoute><ConvertImageToPdf></ConvertImageToPdf></ProtectedRoute>} />
+      <Route path="/tools/convert-word-to-excel" element={<ProtectedRoute><WordToExcel></WordToExcel></ProtectedRoute>} />
+      <Route path="/tools/image-format-convert" element={<ProtectedRoute><ImageFormatConvert></ImageFormatConvert></ProtectedRoute>} />
+      <Route path="/tools/image-compress" element={<ProtectedRoute><ImageCompress></ImageCompress></ProtectedRoute>} />
+      <Route path="/tools/markdown-to-pdf" element={<ProtectedRoute><MarkdownToPdf></MarkdownToPdf></ProtectedRoute>} />
+      <Route path="/tools/html-to-pdf" element={<ProtectedRoute><HtmlToPdf></HtmlToPdf></ProtectedRoute>} />
+      <Route path="/tools/word-document-compare" element={<ProtectedRoute><WordDocumentCompare></WordDocumentCompare></ProtectedRoute>} />
+      <Route path="/tools/epub-to-pdf" element={<ProtectedRoute><EpubToPdf></EpubToPdf></ProtectedRoute>} />
+      <Route path="/tools/pdf-to-epub" element={<ProtectedRoute><PdfToEpub></PdfToEpub></ProtectedRoute>} />
+      <Route path="/tools/csv-to-excel" element={<ProtectedRoute><CsvToExcel></CsvToExcel></ProtectedRoute>} />
+      <Route path="/tools/excel-to-csv" element={<ProtectedRoute><ExcelToCsv></ExcelToCsv></ProtectedRoute>} />
+      <Route path="/tools/xml-to-json" element={<ProtectedRoute><XmlToJson></XmlToJson></ProtectedRoute>} />
+      <Route path="/tools/json-to-xml" element={<ProtectedRoute><JsonToXml></JsonToXml></ProtectedRoute>} />
+      <Route path="/tools/ppt-to-image" element={<ProtectedRoute><PptToImage></PptToImage></ProtectedRoute>} />
+      <Route path="/tools/image-to-ppt" element={<ProtectedRoute><ImageToPpt></ImageToPpt></ProtectedRoute>} />
+      <Route path="/tools/pdf-to-ppt" element={<ProtectedRoute><PdfToPpt></PdfToPpt></ProtectedRoute>} />
+      <Route path="/tools/ppt-to-pdf" element={<ProtectedRoute><PptToPdf></PptToPdf></ProtectedRoute>} />
+      <Route path="/tools/ppt-to-word" element={<ProtectedRoute><PptToWord></PptToWord></ProtectedRoute>} />
+      <Route path="/tools/markdown-to-ppt" element={<ProtectedRoute><MarkdownToPpt></MarkdownToPpt></ProtectedRoute>} />
 
       {/* Image Tools */}
-      <Route path="/tools/image-resize" element={<ImageResize />} />
-      <Route path="/tools/image-watermark" element={<ImageWatermark />} />
-      <Route path="/tools/image-remove-bg" element={<ImageRemoveBg />} />
-      <Route path="/tools/image-crop-rotate" element={<ImageCropRotate />} />
-      <Route path="/tools/image-remove-watermark" element={<ImageRemoveWatermark />} />
-      <Route path="/tools/image-stitch" element={<ImageStitch />} />
-      <Route path="/tools/image-exif-viewer" element={<ImageExifViewer />} />
-      <Route path="/tools/image-filter" element={<ImageFilter />} />
-      <Route path="/tools/image-border" element={<ImageBorder />} />
-      <Route path="/tools/image-ascii-art" element={<ImageAsciiArt />} />
-      <Route path="/tools/batch-image-compress" element={<BatchImageCompress />} />
-      <Route path="/tools/image-mosaic" element={<ImageMosaic />} />
-      <Route path="/tools/image-free-collage" element={<ImageFreeCollage />} />
-      <Route path="/tools/image-round" element={<ImageRound />} />
-      <Route path="/tools/image-flip" element={<ImageFlip />} />
-      <Route path="/tools/image-pixelate" element={<ImagePixelate />} />
-      <Route path="/tools/collage-maker" element={<CollageMaker />} />
-      <Route path="/tools/image-add-text" element={<ImageAddText />} />
-      <Route path="/tools/image-blur-bg" element={<ImageBlurBg />} />
-      <Route path="/tools/image-split" element={<ImageSplit />} />
+      <Route path="/tools/image-resize" element={<ProtectedRoute><ImageResize></ImageResize></ProtectedRoute>} />
+      <Route path="/tools/image-watermark" element={<ProtectedRoute><ImageWatermark></ImageWatermark></ProtectedRoute>} />
+      <Route path="/tools/image-remove-bg" element={<ProtectedRoute><ImageRemoveBg></ImageRemoveBg></ProtectedRoute>} />
+      <Route path="/tools/image-crop-rotate" element={<ProtectedRoute><ImageCropRotate></ImageCropRotate></ProtectedRoute>} />
+      <Route path="/tools/image-remove-watermark" element={<ProtectedRoute><ImageRemoveWatermark></ImageRemoveWatermark></ProtectedRoute>} />
+      <Route path="/tools/image-stitch" element={<ProtectedRoute><ImageStitch></ImageStitch></ProtectedRoute>} />
+      <Route path="/tools/image-exif-viewer" element={<ProtectedRoute><ImageExifViewer></ImageExifViewer></ProtectedRoute>} />
+      <Route path="/tools/image-filter" element={<ProtectedRoute><ImageFilter></ImageFilter></ProtectedRoute>} />
+      <Route path="/tools/image-border" element={<ProtectedRoute><ImageBorder></ImageBorder></ProtectedRoute>} />
+      <Route path="/tools/image-ascii-art" element={<ProtectedRoute><ImageAsciiArt></ImageAsciiArt></ProtectedRoute>} />
+      <Route path="/tools/batch-image-compress" element={<ProtectedRoute><BatchImageCompress></BatchImageCompress></ProtectedRoute>} />
+      <Route path="/tools/image-mosaic" element={<ProtectedRoute><ImageMosaic></ImageMosaic></ProtectedRoute>} />
+      <Route path="/tools/image-free-collage" element={<ProtectedRoute><ImageFreeCollage></ImageFreeCollage></ProtectedRoute>} />
+      <Route path="/tools/image-round" element={<ProtectedRoute><ImageRound></ImageRound></ProtectedRoute>} />
+      <Route path="/tools/image-flip" element={<ProtectedRoute><ImageFlip></ImageFlip></ProtectedRoute>} />
+      <Route path="/tools/image-pixelate" element={<ProtectedRoute><ImagePixelate></ImagePixelate></ProtectedRoute>} />
+      <Route path="/tools/collage-maker" element={<ProtectedRoute><CollageMaker></CollageMaker></ProtectedRoute>} />
+      <Route path="/tools/image-add-text" element={<ProtectedRoute><ImageAddText></ImageAddText></ProtectedRoute>} />
+      <Route path="/tools/image-blur-bg" element={<ProtectedRoute><ImageBlurBg></ImageBlurBg></ProtectedRoute>} />
+      <Route path="/tools/image-split" element={<ProtectedRoute><ImageSplit></ImageSplit></ProtectedRoute>} />
 
       {/* Smart Recognition */}
-      <Route path="/tools/invoice-ocr" element={<InvoiceOcr />} />
-      <Route path="/tools/general-ocr" element={<GeneralOcr />} />
-      <Route path="/tools/document-compare" element={<DocumentCompare />} />
+      <Route path="/tools/invoice-ocr" element={<ProtectedRoute><InvoiceOcr></InvoiceOcr></ProtectedRoute>} />
+      <Route path="/tools/general-ocr" element={<ProtectedRoute><GeneralOcr></GeneralOcr></ProtectedRoute>} />
+      <Route path="/tools/document-compare" element={<ProtectedRoute><DocumentCompare></DocumentCompare></ProtectedRoute>} />
 
       {/* Batch Processing */}
-      <Route path="/tools/batch-watermark" element={<BatchWatermark />} />
-      <Route path="/tools/batch-rename" element={<BatchRename />} />
+      <Route path="/tools/batch-watermark" element={<ProtectedRoute><BatchWatermark></BatchWatermark></ProtectedRoute>} />
+      <Route path="/tools/batch-rename" element={<ProtectedRoute><BatchRename></BatchRename></ProtectedRoute>} />
 
       {/* Office Tools */}
-      <Route path="/tools/qr-code-generator" element={<QrCodeGenerator />} />
-      <Route path="/tools/e-signature" element={<ESignature />} />
-      <Route path="/tools/contract-templates" element={<ContractTemplates />} />
-      <Route path="/tools/audio-to-text" element={<AudioToText />} />
-      <Route path="/tools/text-to-speech" element={<TextToSpeech />} />
-      <Route path="/tools/online-spreadsheet" element={<OnlineSpreadsheet />} />
-      <Route path="/tools/markdown-editor" element={<MarkdownEditor />} />
-      <Route path="/tools/screen-recorder" element={<ScreenRecorder />} />
-      <Route path="/tools/online-drawing-board" element={<OnlineDrawingBoard />} />
-      <Route path="/tools/qr-code-decoder" element={<QrCodeDecoder />} />
-      <Route path="/tools/barcode-generator" element={<BarcodeGenerator />} />
-      <Route path="/tools/online-notes" element={<OnlineNotes />} />
-      <Route path="/tools/password-generator" element={<PasswordGenerator />} />
-      <Route path="/tools/mind-map" element={<MindMap />} />
-      <Route path="/tools/flow-chart" element={<FlowChart />} />
-      <Route path="/tools/id-photo-maker" element={<IdPhotoMaker />} />
-      <Route path="/tools/resume-generator" element={<ResumeGenerator />} />
-      <Route path="/tools/calendar-maker" element={<CalendarMaker />} />
-      <Route path="/tools/lorem-ipsum" element={<LoremIpsum />} />
-      <Route path="/tools/word-counter" element={<WordCounter />} />
-      <Route path="/tools/http-request-test" element={<HttpRequestTest />} />
-      <Route path="/tools/gov-doc-format" element={<GovDocFormat />} />
-      <Route path="/tools/watermark-paper" element={<WatermarkPaper />} />
-      <Route path="/tools/text-statistics" element={<TextStatistics />} />
-      <Route path="/tools/file-format-query" element={<FileFormatQuery />} />
+      <Route path="/tools/qr-code-generator" element={<ProtectedRoute><QrCodeGenerator></QrCodeGenerator></ProtectedRoute>} />
+      <Route path="/tools/e-signature" element={<ProtectedRoute><ESignature></ESignature></ProtectedRoute>} />
+      <Route path="/tools/contract-templates" element={<ProtectedRoute><ContractTemplates></ContractTemplates></ProtectedRoute>} />
+      <Route path="/tools/audio-to-text" element={<ProtectedRoute><AudioToText></AudioToText></ProtectedRoute>} />
+      <Route path="/tools/text-to-speech" element={<ProtectedRoute><TextToSpeech></TextToSpeech></ProtectedRoute>} />
+      <Route path="/tools/online-spreadsheet" element={<ProtectedRoute><OnlineSpreadsheet></OnlineSpreadsheet></ProtectedRoute>} />
+      <Route path="/tools/markdown-editor" element={<ProtectedRoute><MarkdownEditor></MarkdownEditor></ProtectedRoute>} />
+      <Route path="/tools/screen-recorder" element={<ProtectedRoute><ScreenRecorder></ScreenRecorder></ProtectedRoute>} />
+      <Route path="/tools/online-drawing-board" element={<ProtectedRoute><OnlineDrawingBoard></OnlineDrawingBoard></ProtectedRoute>} />
+      <Route path="/tools/qr-code-decoder" element={<ProtectedRoute><QrCodeDecoder></QrCodeDecoder></ProtectedRoute>} />
+      <Route path="/tools/barcode-generator" element={<ProtectedRoute><BarcodeGenerator></BarcodeGenerator></ProtectedRoute>} />
+      <Route path="/tools/online-notes" element={<ProtectedRoute><OnlineNotes></OnlineNotes></ProtectedRoute>} />
+      <Route path="/tools/password-generator" element={<ProtectedRoute><PasswordGenerator></PasswordGenerator></ProtectedRoute>} />
+      <Route path="/tools/mind-map" element={<ProtectedRoute><MindMap></MindMap></ProtectedRoute>} />
+      <Route path="/tools/flow-chart" element={<ProtectedRoute><FlowChart></FlowChart></ProtectedRoute>} />
+      <Route path="/tools/id-photo-maker" element={<ProtectedRoute><IdPhotoMaker></IdPhotoMaker></ProtectedRoute>} />
+      <Route path="/tools/resume-generator" element={<ProtectedRoute><ResumeGenerator></ResumeGenerator></ProtectedRoute>} />
+      <Route path="/tools/calendar-maker" element={<ProtectedRoute><CalendarMaker></CalendarMaker></ProtectedRoute>} />
+      <Route path="/tools/lorem-ipsum" element={<ProtectedRoute><LoremIpsum></LoremIpsum></ProtectedRoute>} />
+      <Route path="/tools/word-counter" element={<ProtectedRoute><WordCounter></WordCounter></ProtectedRoute>} />
+      <Route path="/tools/http-request-test" element={<ProtectedRoute><HttpRequestTest></HttpRequestTest></ProtectedRoute>} />
+      <Route path="/tools/gov-doc-format" element={<ProtectedRoute><GovDocFormat></GovDocFormat></ProtectedRoute>} />
+      <Route path="/tools/watermark-paper" element={<ProtectedRoute><WatermarkPaper></WatermarkPaper></ProtectedRoute>} />
+      <Route path="/tools/text-statistics" element={<ProtectedRoute><TextStatistics></TextStatistics></ProtectedRoute>} />
+      <Route path="/tools/file-format-query" element={<ProtectedRoute><FileFormatQuery></FileFormatQuery></ProtectedRoute>} />
 
       {/* PPT Tools */}
-      <Route path="/tools/ppt-merge" element={<PptMerge />} />
-      <Route path="/tools/ppt-split" element={<PptSplit />} />
-      <Route path="/tools/ppt-extract-images" element={<PptExtractImages />} />
-      <Route path="/tools/ppt-extract-text" element={<PptExtractText />} />
-      <Route path="/tools/ppt-compress" element={<PptCompress />} />
-      <Route path="/tools/ppt-rearrange" element={<PptRearrange />} />
-      <Route path="/tools/ppt-add-watermark" element={<PptAddWatermark />} />
-      <Route path="/tools/ppt-template-maker" element={<PptTemplateMaker />} />
-      <Route path="/tools/ppt-replace-text" element={<PptReplaceText />} />
-      <Route path="/tools/ppt-delete-pages" element={<PptDeletePages />} />
-      <Route path="/tools/ppt-add-page-numbers" element={<PptAddPageNumbers />} />
-      <Route path="/tools/ppt-extract-media" element={<PptExtractMedia />} />
-      <Route path="/tools/ppt-to-long-image" element={<PptToLongImage />} />
-      <Route path="/tools/ppt-theme-color" element={<PptThemeColor />} />
+      <Route path="/tools/ppt-merge" element={<ProtectedRoute><PptMerge></PptMerge></ProtectedRoute>} />
+      <Route path="/tools/ppt-split" element={<ProtectedRoute><PptSplit></PptSplit></ProtectedRoute>} />
+      <Route path="/tools/ppt-extract-images" element={<ProtectedRoute><PptExtractImages></PptExtractImages></ProtectedRoute>} />
+      <Route path="/tools/ppt-extract-text" element={<ProtectedRoute><PptExtractText></PptExtractText></ProtectedRoute>} />
+      <Route path="/tools/ppt-compress" element={<ProtectedRoute><PptCompress></PptCompress></ProtectedRoute>} />
+      <Route path="/tools/ppt-rearrange" element={<ProtectedRoute><PptRearrange></PptRearrange></ProtectedRoute>} />
+      <Route path="/tools/ppt-add-watermark" element={<ProtectedRoute><PptAddWatermark></PptAddWatermark></ProtectedRoute>} />
+      <Route path="/tools/ppt-template-maker" element={<ProtectedRoute><PptTemplateMaker></PptTemplateMaker></ProtectedRoute>} />
+      <Route path="/tools/ppt-replace-text" element={<ProtectedRoute><PptReplaceText></PptReplaceText></ProtectedRoute>} />
+      <Route path="/tools/ppt-delete-pages" element={<ProtectedRoute><PptDeletePages></PptDeletePages></ProtectedRoute>} />
+      <Route path="/tools/ppt-add-page-numbers" element={<ProtectedRoute><PptAddPageNumbers></PptAddPageNumbers></ProtectedRoute>} />
+      <Route path="/tools/ppt-extract-media" element={<ProtectedRoute><PptExtractMedia></PptExtractMedia></ProtectedRoute>} />
+      <Route path="/tools/ppt-to-long-image" element={<ProtectedRoute><PptToLongImage></PptToLongImage></ProtectedRoute>} />
+      <Route path="/tools/ppt-theme-color" element={<ProtectedRoute><PptThemeColor></PptThemeColor></ProtectedRoute>} />
 
       {/* Developer Tools */}
-      <Route path="/tools/json-formatter" element={<JsonFormatter />} />
-      <Route path="/tools/base64-tool" element={<Base64Tool />} />
-      <Route path="/tools/regex-tester" element={<RegexTester />} />
-      <Route path="/tools/file-hash" element={<FileHash />} />
-      <Route path="/tools/color-converter" element={<ColorConverter />} />
-      <Route path="/tools/timestamp-converter" element={<TimestampConverter />} />
-      <Route path="/tools/url-encoder-decoder" element={<UrlEncoderDecoder />} />
-      <Route path="/tools/jwt-decoder" element={<JwtDecoder />} />
-      <Route path="/tools/base-converter" element={<BaseConverter />} />
+      <Route path="/tools/json-formatter" element={<ProtectedRoute><JsonFormatter></JsonFormatter></ProtectedRoute>} />
+      <Route path="/tools/base64-tool" element={<ProtectedRoute><Base64Tool></Base64Tool></ProtectedRoute>} />
+      <Route path="/tools/regex-tester" element={<ProtectedRoute><RegexTester></RegexTester></ProtectedRoute>} />
+      <Route path="/tools/file-hash" element={<ProtectedRoute><FileHash></FileHash></ProtectedRoute>} />
+      <Route path="/tools/color-converter" element={<ProtectedRoute><ColorConverter></ColorConverter></ProtectedRoute>} />
+      <Route path="/tools/timestamp-converter" element={<ProtectedRoute><TimestampConverter></TimestampConverter></ProtectedRoute>} />
+      <Route path="/tools/url-encoder-decoder" element={<ProtectedRoute><UrlEncoderDecoder></UrlEncoderDecoder></ProtectedRoute>} />
+      <Route path="/tools/jwt-decoder" element={<ProtectedRoute><JwtDecoder></JwtDecoder></ProtectedRoute>} />
+      <Route path="/tools/base-converter" element={<ProtectedRoute><BaseConverter></BaseConverter></ProtectedRoute>} />
 
       {/* Text Processing */}
-      <Route path="/tools/traditional-simplified" element={<TraditionalSimplified />} />
-      <Route path="/tools/pinyin-converter" element={<PinyinConverter />} />
-      <Route path="/tools/text-dedup" element={<TextDedup />} />
-      <Route path="/tools/text-sort" element={<TextSort />} />
-      <Route path="/tools/case-converter" element={<CaseConverter />} />
-      <Route path="/tools/line-number-tool" element={<LineNumberTool />} />
-      <Route path="/tools/text-replace" element={<TextReplace />} />
-      <Route path="/tools/symbol-insert" element={<SymbolInsert />} />
-      <Route path="/tools/emoji-tool" element={<EmojiTool />} />
+      <Route path="/tools/traditional-simplified" element={<ProtectedRoute><TraditionalSimplified></TraditionalSimplified></ProtectedRoute>} />
+      <Route path="/tools/pinyin-converter" element={<ProtectedRoute><PinyinConverter></PinyinConverter></ProtectedRoute>} />
+      <Route path="/tools/text-dedup" element={<ProtectedRoute><TextDedup></TextDedup></ProtectedRoute>} />
+      <Route path="/tools/text-sort" element={<ProtectedRoute><TextSort></TextSort></ProtectedRoute>} />
+      <Route path="/tools/case-converter" element={<ProtectedRoute><CaseConverter></CaseConverter></ProtectedRoute>} />
+      <Route path="/tools/line-number-tool" element={<ProtectedRoute><LineNumberTool></LineNumberTool></ProtectedRoute>} />
+      <Route path="/tools/text-replace" element={<ProtectedRoute><TextReplace></TextReplace></ProtectedRoute>} />
+      <Route path="/tools/symbol-insert" element={<ProtectedRoute><SymbolInsert></SymbolInsert></ProtectedRoute>} />
+      <Route path="/tools/emoji-tool" element={<ProtectedRoute><EmojiTool></EmojiTool></ProtectedRoute>} />
 
       {/* GIF Tools */}
-      <Route path="/tools/gif-frame-viewer" element={<GifFrameViewer />} />
-      <Route path="/tools/gif-compressor" element={<GifCompressor />} />
-      <Route path="/tools/gif-splitter" element={<GifSplitter />} />
-      <Route path="/tools/image-to-gif" element={<ImageToGif />} />
+      <Route path="/tools/gif-frame-viewer" element={<ProtectedRoute><GifFrameViewer></GifFrameViewer></ProtectedRoute>} />
+      <Route path="/tools/gif-compressor" element={<ProtectedRoute><GifCompressor></GifCompressor></ProtectedRoute>} />
+      <Route path="/tools/gif-splitter" element={<ProtectedRoute><GifSplitter></GifSplitter></ProtectedRoute>} />
+      <Route path="/tools/image-to-gif" element={<ProtectedRoute><ImageToGif></ImageToGif></ProtectedRoute>} />
 
       {/* Calculators */}
-      <Route path="/tools/bmi-calculator" element={<BmiCalculator />} />
-      <Route path="/tools/unit-converter" element={<UnitConverter />} />
-      <Route path="/tools/date-calculator" element={<DateCalculator />} />
-      <Route path="/tools/percentage-calculator" element={<PercentageCalculator />} />
-      <Route path="/tools/exchange-rate-calculator" element={<ExchangeRateCalculator />} />
+      <Route path="/tools/bmi-calculator" element={<ProtectedRoute><BmiCalculator></BmiCalculator></ProtectedRoute>} />
+      <Route path="/tools/unit-converter" element={<ProtectedRoute><UnitConverter></UnitConverter></ProtectedRoute>} />
+      <Route path="/tools/date-calculator" element={<ProtectedRoute><DateCalculator></DateCalculator></ProtectedRoute>} />
+      <Route path="/tools/percentage-calculator" element={<ProtectedRoute><PercentageCalculator></PercentageCalculator></ProtectedRoute>} />
+      <Route path="/tools/exchange-rate-calculator" element={<ProtectedRoute><ExchangeRateCalculator></ExchangeRateCalculator></ProtectedRoute>} />
 
       {/* Encryption & Security */}
-      <Route path="/tools/text-encrypt" element={<TextEncrypt />} />
-      <Route path="/tools/hash-generator" element={<HashGenerator />} />
-      <Route path="/tools/password-strength-checker" element={<PasswordStrengthChecker />} />
-      <Route path="/tools/random-password-generator" element={<RandomPasswordGenerator />} />
+      <Route path="/tools/text-encrypt" element={<ProtectedRoute><TextEncrypt></TextEncrypt></ProtectedRoute>} />
+      <Route path="/tools/hash-generator" element={<ProtectedRoute><HashGenerator></HashGenerator></ProtectedRoute>} />
+      <Route path="/tools/password-strength-checker" element={<ProtectedRoute><PasswordStrengthChecker></PasswordStrengthChecker></ProtectedRoute>} />
+      <Route path="/tools/random-password-generator" element={<ProtectedRoute><RandomPasswordGenerator></RandomPasswordGenerator></ProtectedRoute>} />
 
       {/* Color Tools */}
-      <Route path="/tools/color-palette" element={<ColorPalette />} />
-      <Route path="/tools/color-contrast-checker" element={<ColorContrastChecker />} />
-      <Route path="/tools/gradient-generator" element={<GradientGenerator />} />
-      <Route path="/tools/glassmorphism-generator" element={<GlassmorphismGenerator />} />
+      <Route path="/tools/color-palette" element={<ProtectedRoute><ColorPalette></ColorPalette></ProtectedRoute>} />
+      <Route path="/tools/color-contrast-checker" element={<ProtectedRoute><ColorContrastChecker></ColorContrastChecker></ProtectedRoute>} />
+      <Route path="/tools/gradient-generator" element={<ProtectedRoute><GradientGenerator></GradientGenerator></ProtectedRoute>} />
+      <Route path="/tools/glassmorphism-generator" element={<ProtectedRoute><GlassmorphismGenerator></GlassmorphismGenerator></ProtectedRoute>} />
 
       {/* Enhanced Developer Tools */}
-      <Route path="/tools/cron-expression" element={<CronExpression />} />
-      <Route path="/tools/ip-address-tool" element={<IpAddressTool />} />
-      <Route path="/tools/lorem-ipsum-advanced" element={<LoremIpsumAdvanced />} />
-      <Route path="/tools/regex-visualizer" element={<RegexVisualizer />} />
-      <Route path="/tools/json-diff" element={<JsonDiff />} />
-      <Route path="/tools/sql-formatter" element={<SqlFormatter />} />
-      <Route path="/tools/uuid-generator" element={<UuidGenerator />} />
+      <Route path="/tools/cron-expression" element={<ProtectedRoute><CronExpression></CronExpression></ProtectedRoute>} />
+      <Route path="/tools/ip-address-tool" element={<ProtectedRoute><IpAddressTool></IpAddressTool></ProtectedRoute>} />
+      <Route path="/tools/lorem-ipsum-advanced" element={<ProtectedRoute><LoremIpsumAdvanced></LoremIpsumAdvanced></ProtectedRoute>} />
+      <Route path="/tools/regex-visualizer" element={<ProtectedRoute><RegexVisualizer></RegexVisualizer></ProtectedRoute>} />
+      <Route path="/tools/json-diff" element={<ProtectedRoute><JsonDiff></JsonDiff></ProtectedRoute>} />
+      <Route path="/tools/sql-formatter" element={<ProtectedRoute><SqlFormatter></SqlFormatter></ProtectedRoute>} />
+      <Route path="/tools/uuid-generator" element={<ProtectedRoute><UuidGenerator></UuidGenerator></ProtectedRoute>} />
 
       {/* Audio Tools */}
-      <Route path="/tools/audio-trimmer" element={<AudioTrimmer />} />
-      <Route path="/tools/audio-volume-normalizer" element={<AudioVolumeNormalizer />} />
-      <Route path="/tools/audio-format-converter" element={<AudioFormatConverter />} />
-      <Route path="/tools/audio-merger" element={<AudioMerger />} />
+      <Route path="/tools/audio-trimmer" element={<ProtectedRoute><AudioTrimmer></AudioTrimmer></ProtectedRoute>} />
+      <Route path="/tools/audio-volume-normalizer" element={<ProtectedRoute><AudioVolumeNormalizer></AudioVolumeNormalizer></ProtectedRoute>} />
+      <Route path="/tools/audio-format-converter" element={<ProtectedRoute><AudioFormatConverter></AudioFormatConverter></ProtectedRoute>} />
+      <Route path="/tools/audio-merger" element={<ProtectedRoute><AudioMerger></AudioMerger></ProtectedRoute>} />
 
       {/* Life Tools */}
-      <Route path="/tools/countdown-timer" element={<CountdownTimer />} />
-      <Route path="/tools/pomodoro-timer" element={<PomodoroTimer />} />
-      <Route path="/tools/stopwatch" element={<Stopwatch />} />
-      <Route path="/tools/loan-calculator" element={<LoanCalculator />} />
-      <Route path="/tools/tax-calculator" element={<TaxCalculator />} />
+      <Route path="/tools/countdown-timer" element={<ProtectedRoute><CountdownTimer></CountdownTimer></ProtectedRoute>} />
+      <Route path="/tools/pomodoro-timer" element={<ProtectedRoute><PomodoroTimer></PomodoroTimer></ProtectedRoute>} />
+      <Route path="/tools/stopwatch" element={<ProtectedRoute><Stopwatch></Stopwatch></ProtectedRoute>} />
+      <Route path="/tools/loan-calculator" element={<ProtectedRoute><LoanCalculator></LoanCalculator></ProtectedRoute>} />
+      <Route path="/tools/tax-calculator" element={<ProtectedRoute><TaxCalculator></TaxCalculator></ProtectedRoute>} />
 
       {/* Video Tools */}
-      <Route path="/tools/video-compressor" element={<VideoCompressor />} />
-      <Route path="/tools/video-format-converter" element={<VideoFormatConverter />} />
-      <Route path="/tools/video-frame-capture" element={<VideoFrameCapture />} />
-      <Route path="/tools/video-to-audio" element={<VideoToAudio />} />
-      <Route path="/tools/video-speed-changer" element={<VideoSpeedChanger />} />
-      <Route path="/tools/video-thumbnail" element={<VideoThumbnail />} />
-      <Route path="/tools/video-metadata" element={<VideoMetadata />} />
+      <Route path="/tools/video-compressor" element={<ProtectedRoute><VideoCompressor></VideoCompressor></ProtectedRoute>} />
+      <Route path="/tools/video-format-converter" element={<ProtectedRoute><VideoFormatConverter></VideoFormatConverter></ProtectedRoute>} />
+      <Route path="/tools/video-frame-capture" element={<ProtectedRoute><VideoFrameCapture></VideoFrameCapture></ProtectedRoute>} />
+      <Route path="/tools/video-to-audio" element={<ProtectedRoute><VideoToAudio></VideoToAudio></ProtectedRoute>} />
+      <Route path="/tools/video-speed-changer" element={<ProtectedRoute><VideoSpeedChanger></VideoSpeedChanger></ProtectedRoute>} />
+      <Route path="/tools/video-thumbnail" element={<ProtectedRoute><VideoThumbnail></VideoThumbnail></ProtectedRoute>} />
+      <Route path="/tools/video-metadata" element={<ProtectedRoute><VideoMetadata></VideoMetadata></ProtectedRoute>} />
     </Routes>
   )
 }

@@ -5,7 +5,7 @@ import type { User as SupabaseUser, Session } from '@supabase/supabase-js'
 export interface UserProfile {
   id: string          // same as auth user id
   phone: string       // stored in user_metadata
-  plan: 'free' | 'pro'
+  plan: 'free' | 'pro' | 'admin'
   expiry_date: string | null
   created_at: string
 }
@@ -51,6 +51,9 @@ interface UserState {
 
   // Admin reset user password
   resetUserPassword: (userId: string, newPassword: string) => Promise<boolean>
+
+  // Usage
+  checkUsage: () => boolean
 
   // Helpers
   isPro: () => boolean
@@ -449,9 +452,32 @@ export const useUserStore = create<UserState>()((set, get) => ({
     return success
   },
 
+  checkUsage: () => {
+    const { currentUser } = get()
+    if (!currentUser) return false
+    if (currentUser.plan === 'pro' || currentUser.plan === 'admin') {
+      if (currentUser.plan === 'pro' && currentUser.expiry_date) {
+        return new Date(currentUser.expiry_date) > new Date()
+      }
+      return true
+    }
+    // Free user: check localStorage usage
+    try {
+      const raw = localStorage.getItem('docflow_usage')
+      if (raw) {
+        const data = JSON.parse(raw)
+        const today = new Date().toISOString().split('T')[0]
+        if (data.lastResetDate === today && data.totalUsed >= 3) return false
+      }
+    } catch {}
+    return true
+  },
+
   isPro: () => {
     const { currentUser } = get()
-    if (!currentUser || currentUser.plan !== 'pro' || !currentUser.expiry_date) return false
+    if (!currentUser) return false
+    if (currentUser.plan === 'admin') return true
+    if (currentUser.plan !== 'pro' || !currentUser.expiry_date) return false
     return new Date(currentUser.expiry_date) > new Date()
   },
 
