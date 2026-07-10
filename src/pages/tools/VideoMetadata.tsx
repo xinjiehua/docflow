@@ -4,6 +4,7 @@ import { FileText } from 'lucide-react';
 export default function VideoMetadata() {
   const [file, setFile] = useState<{url: string; name: string; size: number; type: string; lastModified: number} | null>(null);
   const [videoInfo, setVideoInfo] = useState<{width: number; height: number; duration: number} | null>(null);
+  // eslint-disable-next-line
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];

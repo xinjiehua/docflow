@@ -19,7 +19,7 @@ export default function SqlFormatter() {
       }
       q = q.replace(/\s+/g, ' ');
       const clauses = [/\b(SELECT)\b/i, /\b(FROM)\b/i, /\b(WHERE)\b/i, /\b(GROUP\s+BY)\b/i, /\b(HAVING)\b/i, /\b(ORDER\s+BY)\b/i, /\b(LIMIT)\b/i, /\b(SET)\b/i, /\b(VALUES)\b/i, /\b(AND)\b/i, /\b(OR)\b/i, /\b(JOIN)\b/i, /\b(LEFT\s+JOIN)\b/i, /\b(RIGHT\s+JOIN)\b/i, /\b(INNER\s+JOIN)\b/i, /\b(UNION)\b/i];
-      let indent = 0;
+      
       clauses.forEach(clause => {
         q = q.replace(clause, (match) => {
           if (match.match(/^(GROUP|ORDER|LIMIT|SET|VALUES|AND|OR|JOIN|LEFT|RIGHT|INNER|UNION)/i)) {

@@ -3,7 +3,7 @@ import { Camera } from 'lucide-react';
 
 export default function VideoFrameCapture() {
   const [file, setFile] = useState<{url: string; name: string} | null>(null);
-  const [captures, setCaptures] = useState<string[]>([]);
+  const [captures, setCaptures] = useState<{url: string; time: number}[]>([]);
   const [currentTime, setCurrentTime] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,7 +53,7 @@ export default function VideoFrameCapture() {
           <div>
             <h3 className="text-sm font-medium text-navy-700 mb-2">已截取 {captures.length} 帧</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {captures.map((cap: {url: string; time: number}, i: number) => (
+              {captures.map((cap, i: number) => (
                 <div key={i} className="bg-navy-50 rounded-lg p-2">
                   <img src={cap.url} alt={`frame-${i}`} className="w-full rounded" />
                   <div className="flex justify-between items-center mt-1">

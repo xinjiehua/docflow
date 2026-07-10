@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 import {
   Merge, Scissors, Droplets, FileDown,
   ArrowRightLeft, FileText, Image, Table,
@@ -9,7 +9,7 @@ import {
   Columns, Type, Eraser, FileCheck, GitCompare, FileSignature, Music,
   RotateCcw, Paintbrush, FileJson, Binary, Fingerprint, Code2, Palette, Camera, MonitorSpeaker, BarChart3, FileCode, StickyNote,
   Stamp, TableProperties, BookOpen, FileDiff, Sparkles, Square, HashIcon, Package, Pen, ScanBarcode, NotepadText, KeyRound, Clock as ClockIcon, Link, ShieldCheck, Languages, ArrowUpDown, Presentation, Grid3x3, LayoutGrid, Circle, FlipHorizontal, Trash2, GitBranch, User, Calendar, Globe,
-  Percent, Gauge, Banknote, FileDiff, Volume2, Smile,
+  Percent, Gauge, Banknote, Smile, Film, Heart, TrendingUp,
   Search
 } from 'lucide-react'
 
@@ -370,19 +370,19 @@ export default function Home() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up stagger-3">
-            <Link
+            <RouterLink
               to="/tools/pdf-merge"
               className="btn-primary text-base !px-8 !py-3 no-underline"
             >
               开始使用
               <ChevronRight className="w-5 h-5 ml-1" />
-            </Link>
-            <Link
+            </RouterLink>
+            <RouterLink
               to="/pricing"
               className="btn-secondary text-base !px-8 !py-3 no-underline"
             >
               查看定价
-            </Link>
+            </RouterLink>
           </div>
 
           {/* Stats */}
@@ -482,7 +482,7 @@ export default function Home() {
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {cat.tools.map((tool) => (
-                  <Link
+                  <RouterLink
                     key={tool.href}
                     to={tool.href}
                     className="card group no-underline !py-4"
@@ -499,7 +499,7 @@ export default function Home() {
                         <p className="text-xs text-navy-400 mt-0.5 line-clamp-2">{tool.desc}</p>
                       </div>
                     </div>
-                  </Link>
+                  </RouterLink>
                 ))}
               </div>
             </div>
